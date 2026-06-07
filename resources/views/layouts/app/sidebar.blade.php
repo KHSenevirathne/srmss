@@ -32,7 +32,15 @@
                             {{ __('Routes') }}
                         </flux:sidebar.item>
                     @endcan
-                    {{-- Phase 3+ : Schedules, Fuel & Maintenance, Reports link here, each behind its own @can. --}}
+                    @can('log-fuel')
+                        <flux:sidebar.item icon="beaker" :href="route('fuel-logs')" :current="request()->routeIs('fuel-logs')" wire:navigate>
+                            {{ __('Fuel Logs') }}
+                        </flux:sidebar.item>
+                        <flux:sidebar.item icon="wrench-screwdriver" :href="route('maintenance-logs')" :current="request()->routeIs('maintenance-logs')" wire:navigate>
+                            {{ __('Maintenance') }}
+                        </flux:sidebar.item>
+                    @endcan
+                    {{-- Phase 3+ : Schedules, Reports link here, each behind its own @can. --}}
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 

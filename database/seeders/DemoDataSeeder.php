@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\BusRoute;
 use App\Models\Driver;
+use App\Models\FuelLog;
+use App\Models\MaintenanceLog;
 use App\Models\RouteStop;
 use App\Models\Schedule;
 use App\Models\User;
@@ -69,6 +71,15 @@ class DemoDataSeeder extends Seeder
             'valid_from' => now()->toDateString(),
             'status' => 'active',
         ]);
+
+        // A little fuel history for the first bus.
+        FuelLog::create(['vehicle_id' => $vehicles[0]->id, 'liters' => 120.5, 'cost' => 45000, 'odometer' => 181500, 'logged_at' => now()->subDays(14)]);
+        FuelLog::create(['vehicle_id' => $vehicles[0]->id, 'liters' => 115.0, 'cost' => 43200, 'odometer' => 182000, 'logged_at' => now()->subDays(2)]);
+
+        // Maintenance: one routine record with a future due date, and one that is
+        // already overdue so the "service due" flag is visible in the demo.
+        MaintenanceLog::create(['vehicle_id' => $vehicles[0]->id, 'type' => 'routine', 'description' => 'Oil & filter change', 'cost' => 8500, 'serviced_at' => now()->subMonths(2), 'next_due_at' => now()->addMonth()]);
+        MaintenanceLog::create(['vehicle_id' => $vehicles[2]->id, 'type' => 'corrective', 'description' => 'Brake pad replacement', 'cost' => 15000, 'serviced_at' => now()->subMonths(4), 'next_due_at' => now()->subWeek()]);
     }
 
     /** Create (or update) a demo user and give them exactly one role. */

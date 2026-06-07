@@ -1,6 +1,8 @@
 <?php
 
 use App\Livewire\DriverManager;
+use App\Livewire\FuelLogManager;
+use App\Livewire\MaintenanceLogManager;
 use App\Livewire\RouteManager;
 use App\Livewire\VehicleManager;
 use Illuminate\Support\Facades\Route;
@@ -28,6 +30,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/routes', RouteManager::class)
         ->middleware('can:manage-routes')
         ->name('routes');
+
+    // Fuel & maintenance logging (Phase 3) — both gated by log-fuel.
+    Route::get('/fuel-logs', FuelLogManager::class)
+        ->middleware('can:log-fuel')
+        ->name('fuel-logs');
+
+    Route::get('/maintenance-logs', MaintenanceLogManager::class)
+        ->middleware('can:log-fuel')
+        ->name('maintenance-logs');
 });
 
 require __DIR__.'/settings.php';
