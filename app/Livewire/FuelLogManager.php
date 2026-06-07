@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\FuelLog;
+use App\Models\Trip;
 use App\Models\Vehicle;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -42,6 +43,10 @@ class FuelLogManager extends Component
     #[Validate('required|date')]
     public string $logged_at = '';
 
+    // Optional link to a specific trip (trips are generated in Phase 4).
+    #[Validate('nullable|exists:trips,id')]
+    public string $trip_id = '';
+
     public function updatedFilterVehicleId(): void
     {
         $this->resetPage();
@@ -59,7 +64,7 @@ class FuelLogManager extends Component
 
     public function create(): void
     {
-        $this->reset(['editingId', 'vehicle_id', 'liters', 'cost', 'odometer', 'logged_at']);
+        $this->reset(['editingId', 'vehicle_id', 'liters', 'cost', 'odometer', 'logged_at', 'trip_id']);
         $this->logged_at = now()->toDateString();
         $this->showModal = true;
     }
@@ -73,6 +78,7 @@ class FuelLogManager extends Component
         $this->cost = (float) $log->cost;
         $this->odometer = $log->odometer;
         $this->logged_at = $log->logged_at->toDateString();
+        $this->trip_id = $log->trip_id ? (string) $log->trip_id : '';
         $this->showModal = true;
     }
 
@@ -84,7 +90,11 @@ class FuelLogManager extends Component
             'cost'       => 'required|numeric|min:0',
             'odometer'   => 'nullable|integer|min:0',
             'logged_at'  => 'required|date',
+            'trip_id'    => 'nullable|exists:trips,id',
         ]);
+
+        // Store an empty trip selection as null rather than an empty string.
+        $data['trip_id'] = $data['trip_id'] ?: null;
 
         FuelLog::updateOrCreate(['id' => $this->editingId], $data);
 
@@ -109,9 +119,17 @@ class FuelLogManager extends Component
             ->latest('logged_at')
             ->paginate(10);
 
+        // Trips for the optional link, labelled by date + route (empty until Phase 4).
+        $trips = Trip::query()
+            ->with('schedule.route')
+            ->latest('trip_date')
+            ->limit(50)
+            ->get();
+
         return view('livewire.fuel-log-manager', [
             'logs'     => $logs,
             'vehicles' => Vehicle::orderBy('registration_number')->get(),
+            'trips'    => $trips,
         ]);
     }
 }

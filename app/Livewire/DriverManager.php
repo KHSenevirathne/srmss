@@ -20,6 +20,7 @@ class DriverManager extends Component
     use WithPagination;
 
     public string $search = '';
+    public string $statusFilter = '';
     public bool $showModal = false;
     public ?int $editingId = null;
 
@@ -48,6 +49,11 @@ class DriverManager extends Component
     public string $status = 'active';
 
     public function updatingSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingStatusFilter(): void
     {
         $this->resetPage();
     }
@@ -110,6 +116,7 @@ class DriverManager extends Component
             ->when($this->search, fn ($q) => $q
                 ->where('name', 'like', "%{$this->search}%")
                 ->orWhere('license_number', 'like', "%{$this->search}%"))
+            ->when($this->statusFilter, fn ($q) => $q->where('status', $this->statusFilter))
             ->latest()
             ->paginate(10);
 

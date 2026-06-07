@@ -120,3 +120,17 @@ test('a duplicate licence number is rejected', function () {
 
     expect(Driver::where('name', 'Second')->exists())->toBeFalse();
 });
+
+test('drivers can be filtered by status', function () {
+    $admin = User::factory()->create()->assignRole('admin');
+    Driver::create(['name' => 'Active Ann', 'license_number' => 'DL-A', 'license_expiry' => now()->addYear(), 'status' => 'active']);
+    Driver::create(['name' => 'Inactive Ivan', 'license_number' => 'DL-I', 'license_expiry' => now()->addYear(), 'status' => 'inactive']);
+
+    $drivers = Livewire::actingAs($admin)
+        ->test(DriverManager::class)
+        ->set('statusFilter', 'inactive')
+        ->viewData('drivers');
+
+    expect($drivers->total())->toBe(1);
+    expect($drivers->first()->name)->toBe('Inactive Ivan');
+});

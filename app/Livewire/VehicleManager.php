@@ -26,6 +26,7 @@ class VehicleManager extends Component
     use WithPagination;
 
     public string $search = '';
+    public string $statusFilter = '';
     public bool $showModal = false;
     public ?int $editingId = null;
 
@@ -45,6 +46,11 @@ class VehicleManager extends Component
     public string $status = 'available';
 
     public function updatingSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingStatusFilter(): void
     {
         $this->resetPage();
     }
@@ -99,6 +105,7 @@ class VehicleManager extends Component
             ->when($this->search, fn ($q) => $q
                 ->where('registration_number', 'like', "%{$this->search}%")
                 ->orWhere('type', 'like', "%{$this->search}%"))
+            ->when($this->statusFilter, fn ($q) => $q->where('status', $this->statusFilter))
             ->latest()
             ->paginate(10);
 

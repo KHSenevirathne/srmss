@@ -4,6 +4,7 @@ use App\Livewire\DriverManager;
 use App\Livewire\FuelLogManager;
 use App\Livewire\MaintenanceLogManager;
 use App\Livewire\RouteManager;
+use App\Livewire\UserManager;
 use App\Livewire\VehicleManager;
 use Illuminate\Support\Facades\Route;
 
@@ -39,6 +40,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/maintenance-logs', MaintenanceLogManager::class)
         ->middleware('can:log-fuel')
         ->name('maintenance-logs');
+
+    // Administration (Phase 1) — create users + assign roles. Admin only.
+    Route::get('/users', UserManager::class)
+        ->middleware('can:manage-users')
+        ->name('users');
 });
 
 require __DIR__.'/settings.php';

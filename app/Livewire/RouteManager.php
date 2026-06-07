@@ -56,6 +56,15 @@ class RouteManager extends Component
     #[Validate('nullable|string|max:120')]
     public string $newStopName = '';
 
+    #[Validate('nullable|numeric|between:-90,90')]
+    public string $newStopLat = '';
+
+    #[Validate('nullable|numeric|between:-180,180')]
+    public string $newStopLng = '';
+
+    // --- Map panel state ---
+    public ?int $showMapFor = null;
+
     public function updatingSearch(): void
     {
         $this->resetPage();
@@ -123,22 +132,40 @@ class RouteManager extends Component
 
     public function closeStops(): void
     {
-        $this->reset(['managingStopsFor', 'newStopName']);
+        $this->reset(['managingStopsFor', 'newStopName', 'newStopLat', 'newStopLng']);
     }
 
     public function addStop(): void
     {
-        $this->validate(['newStopName' => 'required|string|max:120']);
+        $this->validate([
+            'newStopName' => 'required|string|max:120',
+            'newStopLat'  => 'nullable|numeric|between:-90,90',
+            'newStopLng'  => 'nullable|numeric|between:-180,180',
+        ]);
 
         $route = BusRoute::findOrFail($this->managingStopsFor);
         $nextSequence = ((int) $route->stops()->max('sequence')) + 1;
 
         $route->stops()->create([
-            'name'     => $this->newStopName,
-            'sequence' => $nextSequence,
+            'name'      => $this->newStopName,
+            'sequence'  => $nextSequence,
+            'latitude'  => $this->newStopLat !== '' ? $this->newStopLat : null,
+            'longitude' => $this->newStopLng !== '' ? $this->newStopLng : null,
         ]);
 
-        $this->newStopName = '';
+        $this->reset(['newStopName', 'newStopLat', 'newStopLng']);
+    }
+
+    // --- Map ------------------------------------------------------------------
+
+    public function viewMap(int $routeId): void
+    {
+        $this->showMapFor = $routeId;
+    }
+
+    public function closeMap(): void
+    {
+        $this->reset(['showMapFor']);
     }
 
     public function removeStop(int $stopId): void
@@ -208,6 +235,19 @@ class RouteManager extends Component
         $stops = $this->managingStopsFor ? $this->currentStops() : collect();
         $managingRoute = $this->managingStopsFor ? BusRoute::find($this->managingStopsFor) : null;
 
-        return view('livewire.route-manager', compact('routes', 'stops', 'managingRoute'));
+        // Map panel: the route being shown, plus only the stops that have coords.
+        $mapRoute = $this->showMapFor ? BusRoute::with('stops')->find($this->showMapFor) : null;
+        $mapStops = $mapRoute
+            ? $mapRoute->stops->whereNotNull('latitude')->whereNotNull('longitude')->values()
+            : collect();
+
+        return view('livewire.route-manager', [
+            'routes'        => $routes,
+            'stops'         => $stops,
+            'managingRoute' => $managingRoute,
+            'mapRoute'      => $mapRoute,
+            'mapStops'      => $mapStops,
+            'mapsKey'       => config('services.google_maps.key'),
+        ]);
     }
 }

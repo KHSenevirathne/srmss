@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    // Google Maps JavaScript API — used to render routes + stops on a map
+    // (see RouteManager). Leave the key blank to show a graceful fallback.
+    'google_maps' => [
+        'key' => env('GOOGLE_MAPS_API_KEY'),
+    ],
+
 ];

@@ -108,6 +108,18 @@
                             @error('logged_at') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                         </div>
                     </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Trip <span class="text-gray-400">(optional)</span></label>
+                        <select wire:model="trip_id" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm">
+                            <option value="">— none —</option>
+                            @foreach ($trips as $trip)
+                                <option value="{{ $trip->id }}">
+                                    {{ $trip->trip_date?->format('Y-m-d') }} · {{ $trip->schedule?->route?->code ?? 'route' }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('trip_id') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                    </div>
                 </div>
                 <div class="mt-6 flex justify-end gap-2">
                     <button wire:click="$set('showModal', false)" class="rounded-lg px-4 py-2 text-sm text-gray-600 hover:bg-gray-100">Cancel</button>

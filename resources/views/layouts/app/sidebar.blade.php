@@ -40,8 +40,17 @@
                             {{ __('Maintenance') }}
                         </flux:sidebar.item>
                     @endcan
-                    {{-- Phase 3+ : Schedules, Reports link here, each behind its own @can. --}}
+                    {{-- Phase 4+ : Schedules, Reports link here, each behind its own @can. --}}
                 </flux:sidebar.group>
+
+                {{-- Administration — admin only. --}}
+                @can('manage-users')
+                    <flux:sidebar.group :heading="__('Administration')" class="grid">
+                        <flux:sidebar.item icon="users" :href="route('users')" :current="request()->routeIs('users')" wire:navigate>
+                            {{ __('Users') }}
+                        </flux:sidebar.item>
+                    </flux:sidebar.group>
+                @endcan
             </flux:sidebar.nav>
 
             <flux:spacer />

@@ -13,8 +13,16 @@
         <div class="rounded-lg bg-green-50 px-4 py-2 text-sm text-green-700">{{ session('status') }}</div>
     @endif
 
-    <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search reg no or type…"
-           class="w-full max-w-sm rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+    <div class="flex flex-wrap items-center gap-3">
+        <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search reg no or type…"
+               class="w-full max-w-sm rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+        <select wire:model.live="statusFilter" class="rounded-lg border-gray-300 text-sm shadow-sm">
+            <option value="">All statuses</option>
+            <option value="available">Available</option>
+            <option value="in_service">In service</option>
+            <option value="maintenance">Maintenance</option>
+        </select>
+    </div>
 
     <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white">
         <table class="min-w-full divide-y divide-gray-200 text-sm">

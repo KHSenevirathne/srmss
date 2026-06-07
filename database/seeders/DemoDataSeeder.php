@@ -57,8 +57,20 @@ class DemoDataSeeder extends Seeder
             'total_distance_km' => 119.0, 'service_type' => 'semi-luxury',
         ]);
 
-        foreach (['Colombo Fort', 'Panadura', 'Kalutara', 'Aluthgama', 'Hikkaduwa', 'Galle'] as $i => $stop) {
-            RouteStop::create(['bus_route_id' => $route->id, 'name' => $stop, 'sequence' => $i + 1]);
+        // Stops with real-ish coordinates so the route renders on the map.
+        $stops = [
+            ['Colombo Fort', 6.9344, 79.8428],
+            ['Panadura', 6.7130, 79.9073],
+            ['Kalutara', 6.5854, 79.9607],
+            ['Aluthgama', 6.4300, 80.0000],
+            ['Hikkaduwa', 6.1395, 80.1063],
+            ['Galle', 6.0535, 80.2210],
+        ];
+        foreach ($stops as $i => [$name, $lat, $lng]) {
+            RouteStop::create([
+                'bus_route_id' => $route->id, 'name' => $name, 'sequence' => $i + 1,
+                'latitude' => $lat, 'longitude' => $lng,
+            ]);
         }
 
         Schedule::create([

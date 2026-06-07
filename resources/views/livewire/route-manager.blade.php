@@ -44,6 +44,7 @@
                         </td>
                         <td class="px-4 py-3 text-right space-x-2 whitespace-nowrap">
                             <button wire:click="manageStops({{ $route->id }})" class="text-gray-600 hover:underline">Stops</button>
+                            <button wire:click="viewMap({{ $route->id }})" class="text-gray-600 hover:underline">Map</button>
                             @can('manage-routes')
                                 <button wire:click="edit({{ $route->id }})" class="text-indigo-600 hover:underline">Edit</button>
                                 <button wire:click="delete({{ $route->id }})"
@@ -151,14 +152,27 @@
                 </ol>
 
                 @can('manage-routes')
-                    <div class="mt-4 flex items-end gap-2">
-                        <div class="flex-1">
-                            <label class="block text-sm font-medium text-gray-700">Add a stop</label>
-                            <input type="text" wire:model="newStopName" wire:keydown.enter="addStop"
-                                   placeholder="Stop name" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm">
-                            @error('newStopName') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                    <div class="mt-4 space-y-2">
+                        <label class="block text-sm font-medium text-gray-700">Add a stop</label>
+                        <div class="flex flex-wrap items-start gap-2">
+                            <div class="flex-1 min-w-40">
+                                <input type="text" wire:model="newStopName" wire:keydown.enter="addStop"
+                                       placeholder="Stop name" class="w-full rounded-lg border-gray-300 text-sm shadow-sm">
+                                @error('newStopName') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                            </div>
+                            <div class="w-28">
+                                <input type="number" step="any" wire:model="newStopLat"
+                                       placeholder="Lat" class="w-full rounded-lg border-gray-300 text-sm shadow-sm">
+                                @error('newStopLat') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                            </div>
+                            <div class="w-28">
+                                <input type="number" step="any" wire:model="newStopLng"
+                                       placeholder="Lng" class="w-full rounded-lg border-gray-300 text-sm shadow-sm">
+                                @error('newStopLng') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                            </div>
+                            <button wire:click="addStop" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">Add</button>
                         </div>
-                        <button wire:click="addStop" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">Add</button>
+                        <p class="text-xs text-gray-400">Latitude/longitude are optional — add them to show the stop on the map.</p>
                     </div>
                 @endcan
 
@@ -168,4 +182,71 @@
             </div>
         </div>
     @endif
+
+    {{-- Map panel — route + stops on a Google Map (graceful fallback without a key) --}}
+    @if ($mapRoute)
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+            <div class="w-full max-w-2xl rounded-xl bg-white p-6 shadow-xl">
+                <div class="mb-4 flex items-center justify-between">
+                    <h2 class="text-lg font-semibold">Map — {{ $mapRoute->code }} ({{ $mapRoute->name }})</h2>
+                    <button wire:click="closeMap" class="text-gray-400 hover:text-gray-600">✕</button>
+                </div>
+
+                @if (! $mapsKey)
+                    <div class="rounded-lg bg-amber-50 px-4 py-6 text-center text-sm text-amber-700">
+                        Add a <code class="font-mono">GOOGLE_MAPS_API_KEY</code> to your <code class="font-mono">.env</code> to enable the map.
+                    </div>
+                @elseif ($mapStops->isEmpty())
+                    <div class="rounded-lg bg-gray-50 px-4 py-6 text-center text-sm text-gray-500">
+                        No stops have coordinates yet. Add latitude/longitude to this route's stops to see them on the map.
+                    </div>
+                @else
+                    <div wire:ignore wire:key="map-{{ $mapRoute->id }}"
+                         x-data="routeMap(@js($mapStops->map(fn ($s) => ['name' => $s->name, 'seq' => $s->sequence, 'lat' => (float) $s->latitude, 'lng' => (float) $s->longitude])->values()), @js($mapsKey))"
+                         x-init="load()">
+                        <div x-ref="map" class="h-80 w-full rounded-lg border border-gray-200 bg-gray-50"></div>
+                    </div>
+                @endif
+
+                <div class="mt-6 flex justify-end">
+                    <button wire:click="closeMap" class="rounded-lg px-4 py-2 text-sm text-gray-600 hover:bg-gray-100">Close</button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @script
+    <script>
+        Alpine.data('routeMap', (stops, apiKey) => ({
+            stops,
+            apiKey,
+            load() {
+                if (window.google && window.google.maps) { this.init(); return; }
+                if (! document.getElementById('gmaps-sdk')) {
+                    const s = document.createElement('script');
+                    s.id = 'gmaps-sdk';
+                    s.src = `https://maps.googleapis.com/maps/api/js?key=${this.apiKey}`;
+                    s.async = true;
+                    s.onload = () => window.dispatchEvent(new CustomEvent('gmaps-ready'));
+                    document.head.appendChild(s);
+                }
+                window.addEventListener('gmaps-ready', () => this.init(), { once: true });
+            },
+            init() {
+                if (! this.$refs.map || ! window.google) return;
+                const map = new google.maps.Map(this.$refs.map, { zoom: 8, mapTypeControl: false });
+                const bounds = new google.maps.LatLngBounds();
+                const path = [];
+                this.stops.forEach((stop) => {
+                    const pos = { lat: stop.lat, lng: stop.lng };
+                    new google.maps.Marker({ position: pos, map, label: String(stop.seq), title: stop.name });
+                    path.push(pos);
+                    bounds.extend(pos);
+                });
+                new google.maps.Polyline({ path, map, strokeColor: '#4f46e5', strokeWeight: 3 });
+                map.fitBounds(bounds);
+            },
+        }));
+    </script>
+    @endscript
 </div>
