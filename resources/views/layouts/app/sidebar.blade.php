@@ -23,8 +23,16 @@
                         <flux:sidebar.item icon="truck" :href="route('vehicles')" :current="request()->routeIs('vehicles')" wire:navigate>
                             {{ __('Vehicles') }}
                         </flux:sidebar.item>
+                        <flux:sidebar.item icon="identification" :href="route('drivers')" :current="request()->routeIs('drivers')" wire:navigate>
+                            {{ __('Drivers') }}
+                        </flux:sidebar.item>
                     @endcan
-                    {{-- Phase 2+ : Drivers, Routes, Schedules, Fuel & Maintenance, Reports link here, each behind its own @can. --}}
+                    @can('manage-routes')
+                        <flux:sidebar.item icon="map" :href="route('routes')" :current="request()->routeIs('routes')" wire:navigate>
+                            {{ __('Routes') }}
+                        </flux:sidebar.item>
+                    @endcan
+                    {{-- Phase 3+ : Schedules, Fuel & Maintenance, Reports link here, each behind its own @can. --}}
                 </flux:sidebar.group>
             </flux:sidebar.nav>
 

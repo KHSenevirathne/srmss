@@ -2,7 +2,6 @@
 
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 /*
  * Phase 1 — proves the role-aware guard on the Vehicles screen:
@@ -12,10 +11,9 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
  *   - a user WITHOUT it (operator) is blocked with 403.
  */
 
-uses(RefreshDatabase::class);
-
 beforeEach(function () {
     // Build the roles + permissions in the fresh test database.
+    // RefreshDatabase is applied globally in tests/Pest.php.
     $this->seed(RolesAndPermissionsSeeder::class);
 });
 

@@ -1,5 +1,7 @@
 <?php
 
+use App\Livewire\DriverManager;
+use App\Livewire\RouteManager;
 use App\Livewire\VehicleManager;
 use Illuminate\Support\Facades\Route;
 
@@ -13,10 +15,19 @@ Route::view('/', 'welcome')->name('home');
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('dashboard', 'dashboard')->name('dashboard');
 
-    // Fleet — Vehicles (Phase 2 adds Drivers here under the same guard).
+    // Fleet — Vehicles + Drivers share the manage-fleet permission.
     Route::get('/vehicles', VehicleManager::class)
         ->middleware('can:manage-fleet')
         ->name('vehicles');
+
+    Route::get('/drivers', DriverManager::class)
+        ->middleware('can:manage-fleet')
+        ->name('drivers');
+
+    // Route planning (Phase 3) — routes + ordered stops.
+    Route::get('/routes', RouteManager::class)
+        ->middleware('can:manage-routes')
+        ->name('routes');
 });
 
 require __DIR__.'/settings.php';
