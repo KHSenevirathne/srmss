@@ -1,9 +1,13 @@
 <?php
 
+use App\Http\Controllers\ReportPdfController;
+use App\Livewire\Dashboard;
 use App\Livewire\DriverManager;
 use App\Livewire\FuelLogManager;
 use App\Livewire\MaintenanceLogManager;
+use App\Livewire\Reports;
 use App\Livewire\RouteManager;
+use App\Livewire\ScheduleManager;
 use App\Livewire\UserManager;
 use App\Livewire\VehicleManager;
 use Illuminate\Support\Facades\Route;
@@ -16,7 +20,7 @@ Route::view('/', 'welcome')->name('home');
  * a user who lacks the permission gets a 403 instead of reaching the page.
  */
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::view('dashboard', 'dashboard')->name('dashboard');
+    Route::get('dashboard', Dashboard::class)->name('dashboard');
 
     // Fleet — Vehicles + Drivers share the manage-fleet permission.
     Route::get('/vehicles', VehicleManager::class)
@@ -32,6 +36,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('can:manage-routes')
         ->name('routes');
 
+    // Scheduling (Phase 4) — timetables + conflict-checked assignment + trips.
+    Route::get('/schedules', ScheduleManager::class)
+        ->middleware('can:manage-schedules')
+        ->name('schedules');
+
     // Fuel & maintenance logging (Phase 3) — both gated by log-fuel.
     Route::get('/fuel-logs', FuelLogManager::class)
         ->middleware('can:log-fuel')
@@ -40,6 +49,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/maintenance-logs', MaintenanceLogManager::class)
         ->middleware('can:log-fuel')
         ->name('maintenance-logs');
+
+    // Reporting (Phase 5) — on-screen reports + PDF export, gated by view-reports.
+    Route::get('/reports', Reports::class)
+        ->middleware('can:view-reports')
+        ->name('reports');
+
+    Route::get('/reports/pdf', [ReportPdfController::class, 'download'])
+        ->middleware('can:view-reports')
+        ->name('reports.pdf');
 
     // Administration (Phase 1) — create users + assign roles. Admin only.
     Route::get('/users', UserManager::class)

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Vehicle extends Model
 {
@@ -24,5 +25,21 @@ class Vehicle extends Model
     public function maintenanceLogs(): HasMany
     {
         return $this->hasMany(MaintenanceLog::class);
+    }
+
+    /** The most recent maintenance record — drives the "service due" flag. */
+    public function latestMaintenance(): HasOne
+    {
+        return $this->hasOne(MaintenanceLog::class)->latestOfMany('serviced_at');
+    }
+
+    /** Service is due when the latest maintenance record's next-due date has passed. */
+    public function serviceDue(): bool
+    {
+        $latest = $this->relationLoaded('latestMaintenance')
+            ? $this->latestMaintenance
+            : $this->latestMaintenance()->first();
+
+        return $latest?->serviceDue() ?? false;
     }
 }

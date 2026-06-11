@@ -1,95 +1,103 @@
-<div class="space-y-4">
-    <div class="flex items-center justify-between">
-        <h1 class="text-xl font-semibold text-gray-800">Users</h1>
-        <button wire:click="create"
-                class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
-            + Add User
-        </button>
+<div class="page">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Users</h1>
+            <p class="page-sub">Create accounts and assign roles — admin, supervisor or operator.</p>
+        </div>
+        <button wire:click="create" class="btn-primary">+ Add User</button>
     </div>
 
     @if (session('status'))
-        <div class="rounded-lg bg-green-50 px-4 py-2 text-sm text-green-700">{{ session('status') }}</div>
+        <div class="flash">{{ session('status') }}</div>
     @endif
 
-    <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search name or email…"
-           class="w-full max-w-sm rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-
-    <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white">
-        <table class="min-w-full divide-y divide-gray-200 text-sm">
-            <thead class="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
-                <tr>
-                    <th class="px-4 py-3">Name</th>
-                    <th class="px-4 py-3">Email</th>
-                    <th class="px-4 py-3">Role</th>
-                    <th class="px-4 py-3 text-right">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-                @forelse ($users as $user)
-                    <tr wire:key="user-{{ $user->id }}">
-                        <td class="px-4 py-3 font-medium text-gray-800">{{ $user->name }}</td>
-                        <td class="px-4 py-3">{{ $user->email }}</td>
-                        <td class="px-4 py-3">
-                            <span class="rounded-full bg-gray-100 px-2 py-1 text-xs capitalize">
-                                {{ $user->roles->first()?->name ?? '—' }}
-                            </span>
-                        </td>
-                        <td class="px-4 py-3 text-right space-x-2">
-                            <button wire:click="edit({{ $user->id }})" class="text-indigo-600 hover:underline">Edit</button>
-                            @if ($user->id !== auth()->id())
-                                <button wire:click="delete({{ $user->id }})"
-                                        wire:confirm="Delete this user?"
-                                        class="text-red-600 hover:underline">Delete</button>
-                            @else
-                                <span class="text-xs text-gray-400">(you)</span>
-                            @endif
-                        </td>
-                    </tr>
-                @empty
-                    <tr><td colspan="4" class="px-4 py-6 text-center text-gray-400">No users found.</td></tr>
-                @endforelse
-            </tbody>
-        </table>
+    <div class="filter-bar">
+        <div class="w-full sm:w-64">
+            <label class="label">Search</label>
+            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Name or email…" class="input">
+        </div>
     </div>
 
-    <div>{{ $users->links() }}</div>
+    <div class="card">
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th class="th-actions">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($users as $user)
+                        <tr wire:key="user-{{ $user->id }}">
+                            <td class="td-strong">{{ $user->name }}</td>
+                            <td>{{ $user->email }}</td>
+                            <td>
+                                <span class="badge {{ $user->roles->first()?->name === 'admin' ? 'badge-blue' : 'badge-zinc' }}">
+                                    {{ $user->roles->first()?->name ?? '—' }}
+                                </span>
+                            </td>
+                            <td class="td-actions">
+                                <button wire:click="edit({{ $user->id }})" class="link-action">Edit</button>
+                                @if ($user->id !== auth()->id())
+                                    <button wire:click="delete({{ $user->id }})"
+                                            wire:confirm="Delete this user?"
+                                            class="link-danger">Delete</button>
+                                @else
+                                    <span class="text-xs text-zinc-400 dark:text-zinc-500">(you)</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="4" class="empty">No users found.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        @if ($users->hasPages())<div class="table-foot">{{ $users->links() }}</div>@endif
+    </div>
 
-    {{-- Modal --}}
+    {{-- Create / edit modal --}}
     @if ($showModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
-                <h2 class="mb-4 text-lg font-semibold">{{ $editingId ? 'Edit' : 'Add' }} User</h2>
-                <div class="space-y-3">
+        <div class="modal-backdrop">
+            <div class="modal-panel">
+                <div class="modal-head">
+                    <h2 class="modal-title">{{ $editingId ? 'Edit' : 'Add' }} User</h2>
+                    <button wire:click="$set('showModal', false)" class="modal-close">✕</button>
+                </div>
+                <div class="modal-body">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Name</label>
-                        <input type="text" wire:model="name" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm">
-                        @error('name') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                        <label class="label">Name</label>
+                        <input type="text" wire:model="name" class="input">
+                        @error('name') <p class="error-text">{{ $message }}</p> @enderror
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Email</label>
-                        <input type="email" wire:model="email" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm">
-                        @error('email') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                        <label class="label">Email</label>
+                        <input type="email" wire:model="email" class="input">
+                        @error('email') <p class="error-text">{{ $message }}</p> @enderror
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">
-                            Password {{ $editingId ? '(leave blank to keep current)' : '' }}
-                        </label>
-                        <input type="password" wire:model="password" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm">
-                        @error('password') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Role</label>
-                        <select wire:model="role" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm">
-                            @foreach ($roles as $r)
-                                <option value="{{ $r }}">{{ ucfirst($r) }}</option>
-                            @endforeach
-                        </select>
-                        @error('role') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                    <div class="form-grid-2">
+                        <div>
+                            <label class="label">Password {{ $editingId ? '(blank = keep current)' : '' }}</label>
+                            <input type="password" wire:model="password" class="input">
+                            @error('password') <p class="error-text">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="label">Role</label>
+                            <select wire:model="role" class="input">
+                                @foreach ($roles as $r)
+                                    <option value="{{ $r }}">{{ ucfirst($r) }}</option>
+                                @endforeach
+                            </select>
+                            @error('role') <p class="error-text">{{ $message }}</p> @enderror
+                        </div>
                     </div>
                 </div>
-                <div class="mt-6 flex justify-end gap-2">
-                    <button wire:click="$set('showModal', false)" class="rounded-lg px-4 py-2 text-sm text-gray-600 hover:bg-gray-100">Cancel</button>
-                    <button wire:click="save" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">Save</button>
+                <div class="modal-foot">
+                    <button wire:click="$set('showModal', false)" class="btn-ghost">Cancel</button>
+                    <button wire:click="save" class="btn-primary">Save</button>
                 </div>
             </div>
         </div>

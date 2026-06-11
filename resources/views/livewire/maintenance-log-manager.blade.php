@@ -1,135 +1,140 @@
-<div class="space-y-4">
-    <div class="flex items-center justify-between">
-        <h1 class="text-xl font-semibold text-gray-800">Maintenance Logs</h1>
-        <button wire:click="create"
-                class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
-            + Add Maintenance Log
-        </button>
+<div class="page">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Maintenance Logs</h1>
+            <p class="page-sub">Routine and corrective servicing, with overdue vehicles flagged.</p>
+        </div>
+        <button wire:click="create" class="btn-primary">+ Add Maintenance Log</button>
     </div>
 
     @if (session('status'))
-        <div class="rounded-lg bg-green-50 px-4 py-2 text-sm text-green-700">{{ session('status') }}</div>
+        <div class="flash">{{ session('status') }}</div>
     @endif
 
-    {{-- Filters: vehicle + service-date range --}}
-    <div class="flex flex-wrap items-end gap-3">
-        <div>
-            <label class="block text-xs font-medium text-gray-500">Vehicle</label>
-            <select wire:model.live="filterVehicleId" class="mt-1 rounded-lg border-gray-300 text-sm shadow-sm">
+    <div class="filter-bar">
+        <div class="w-full sm:w-52">
+            <label class="label">Vehicle</label>
+            <select wire:model.live="filterVehicleId" class="input">
                 <option value="">All vehicles</option>
                 @foreach ($vehicles as $vehicle)
                     <option value="{{ $vehicle->id }}">{{ $vehicle->registration_number }}</option>
                 @endforeach
             </select>
         </div>
-        <div>
-            <label class="block text-xs font-medium text-gray-500">From</label>
-            <input type="date" wire:model.live="dateFrom" class="mt-1 rounded-lg border-gray-300 text-sm shadow-sm">
+        <div class="w-full sm:w-44">
+            <label class="label">From</label>
+            <input type="date" wire:model.live="dateFrom" class="input">
         </div>
-        <div>
-            <label class="block text-xs font-medium text-gray-500">To</label>
-            <input type="date" wire:model.live="dateTo" class="mt-1 rounded-lg border-gray-300 text-sm shadow-sm">
+        <div class="w-full sm:w-44">
+            <label class="label">To</label>
+            <input type="date" wire:model.live="dateTo" class="input">
         </div>
     </div>
 
-    <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white">
-        <table class="min-w-full divide-y divide-gray-200 text-sm">
-            <thead class="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
-                <tr>
-                    <th class="px-4 py-3">Serviced</th>
-                    <th class="px-4 py-3">Vehicle</th>
-                    <th class="px-4 py-3">Type</th>
-                    <th class="px-4 py-3">Description</th>
-                    <th class="px-4 py-3">Cost</th>
-                    <th class="px-4 py-3">Next Due</th>
-                    <th class="px-4 py-3 text-right">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-                @forelse ($logs as $log)
-                    <tr wire:key="maint-{{ $log->id }}">
-                        <td class="px-4 py-3">{{ $log->serviced_at->format('Y-m-d') }}</td>
-                        <td class="px-4 py-3 font-medium text-gray-800">{{ $log->vehicle?->registration_number ?? '—' }}</td>
-                        <td class="px-4 py-3 capitalize">{{ $log->type }}</td>
-                        <td class="px-4 py-3">{{ $log->description }}</td>
-                        <td class="px-4 py-3">{{ number_format($log->cost, 2) }}</td>
-                        <td class="px-4 py-3">
-                            @if ($log->next_due_at)
-                                {{ $log->next_due_at->format('Y-m-d') }}
-                                @if ($log->serviceDue())
-                                    <span class="ml-1 rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-700">service due</span>
-                                @endif
-                            @else
-                                —
-                            @endif
-                        </td>
-                        <td class="px-4 py-3 text-right space-x-2">
-                            <button wire:click="edit({{ $log->id }})" class="text-indigo-600 hover:underline">Edit</button>
-                            <button wire:click="delete({{ $log->id }})"
-                                    wire:confirm="Delete this maintenance log?"
-                                    class="text-red-600 hover:underline">Delete</button>
-                        </td>
+    <div class="card">
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Serviced</th>
+                        <th>Vehicle</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                        <th class="th-num">Cost</th>
+                        <th>Next Due</th>
+                        <th class="th-actions">Actions</th>
                     </tr>
-                @empty
-                    <tr><td colspan="7" class="px-4 py-6 text-center text-gray-400">No maintenance logs found.</td></tr>
-                @endforelse
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @forelse ($logs as $log)
+                        <tr wire:key="maint-{{ $log->id }}">
+                            <td>{{ $log->serviced_at->format('Y-m-d') }}</td>
+                            <td class="td-strong">{{ $log->vehicle?->registration_number ?? '—' }}</td>
+                            <td>
+                                <span class="badge {{ $log->type === 'routine' ? 'badge-blue' : 'badge-amber' }}">{{ $log->type }}</span>
+                            </td>
+                            <td class="max-w-64 truncate" title="{{ $log->description }}">{{ $log->description }}</td>
+                            <td class="td-num">{{ number_format($log->cost, 2) }}</td>
+                            <td>
+                                @if ($log->next_due_at)
+                                    {{ $log->next_due_at->format('Y-m-d') }}
+                                    @if ($log->serviceDue())
+                                        <span class="badge badge-red ml-1">service due</span>
+                                    @endif
+                                @else
+                                    —
+                                @endif
+                            </td>
+                            <td class="td-actions">
+                                <button wire:click="edit({{ $log->id }})" class="link-action">Edit</button>
+                                <button wire:click="delete({{ $log->id }})"
+                                        wire:confirm="Delete this maintenance log?"
+                                        class="link-danger">Delete</button>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="7" class="empty">No maintenance logs found.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        @if ($logs->hasPages())<div class="table-foot">{{ $logs->links() }}</div>@endif
     </div>
 
-    <div>{{ $logs->links() }}</div>
-
-    {{-- Modal --}}
+    {{-- Create / edit modal --}}
     @if ($showModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
-                <h2 class="mb-4 text-lg font-semibold">{{ $editingId ? 'Edit' : 'Add' }} Maintenance Log</h2>
-                <div class="space-y-3">
-                    <div class="grid grid-cols-2 gap-3">
+        <div class="modal-backdrop">
+            <div class="modal-panel">
+                <div class="modal-head">
+                    <h2 class="modal-title">{{ $editingId ? 'Edit' : 'Add' }} Maintenance Log</h2>
+                    <button wire:click="$set('showModal', false)" class="modal-close">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-grid-2">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Vehicle</label>
-                            <select wire:model="vehicle_id" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm">
+                            <label class="label">Vehicle</label>
+                            <select wire:model="vehicle_id" class="input">
                                 <option value="">Select a vehicle…</option>
                                 @foreach ($vehicles as $vehicle)
                                     <option value="{{ $vehicle->id }}">{{ $vehicle->registration_number }}</option>
                                 @endforeach
                             </select>
-                            @error('vehicle_id') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                            @error('vehicle_id') <p class="error-text">{{ $message }}</p> @enderror
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Type</label>
-                            <select wire:model="type" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm">
+                            <label class="label">Type</label>
+                            <select wire:model="type" class="input">
                                 <option value="routine">Routine</option>
                                 <option value="corrective">Corrective</option>
                             </select>
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Description</label>
-                        <input type="text" wire:model="description" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm">
-                        @error('description') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                        <label class="label">Description</label>
+                        <input type="text" wire:model="description" class="input">
+                        @error('description') <p class="error-text">{{ $message }}</p> @enderror
                     </div>
-                    <div class="grid grid-cols-3 gap-3">
+                    <div class="form-grid-3">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Cost</label>
-                            <input type="number" step="0.01" wire:model="cost" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm">
-                            @error('cost') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                            <label class="label">Cost</label>
+                            <input type="number" step="0.01" wire:model="cost" class="input">
+                            @error('cost') <p class="error-text">{{ $message }}</p> @enderror
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Serviced</label>
-                            <input type="date" wire:model="serviced_at" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm">
-                            @error('serviced_at') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                            <label class="label">Serviced</label>
+                            <input type="date" wire:model="serviced_at" class="input">
+                            @error('serviced_at') <p class="error-text">{{ $message }}</p> @enderror
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Next Due</label>
-                            <input type="date" wire:model="next_due_at" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm">
-                            @error('next_due_at') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                            <label class="label">Next Due</label>
+                            <input type="date" wire:model="next_due_at" class="input">
+                            @error('next_due_at') <p class="error-text">{{ $message }}</p> @enderror
                         </div>
                     </div>
                 </div>
-                <div class="mt-6 flex justify-end gap-2">
-                    <button wire:click="$set('showModal', false)" class="rounded-lg px-4 py-2 text-sm text-gray-600 hover:bg-gray-100">Cancel</button>
-                    <button wire:click="save" class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">Save</button>
+                <div class="modal-foot">
+                    <button wire:click="$set('showModal', false)" class="btn-ghost">Cancel</button>
+                    <button wire:click="save" class="btn-primary">Save</button>
                 </div>
             </div>
         </div>

@@ -73,7 +73,7 @@ class DemoDataSeeder extends Seeder
             ]);
         }
 
-        Schedule::create([
+        $schedule = Schedule::create([
             'bus_route_id' => $route->id,
             'vehicle_id' => $vehicles[0]->id,
             'driver_id' => $drivers[0]->id,
@@ -82,6 +82,14 @@ class DemoDataSeeder extends Seeder
             'arrival_time' => '09:30',
             'valid_from' => now()->toDateString(),
             'status' => 'active',
+        ]);
+
+        // A few trips with varied statuses so the trip board / reports have data.
+        $schedule->trips()->createMany([
+            ['trip_date' => now()->subDays(2)->toDateString(), 'status' => 'completed'],
+            ['trip_date' => now()->subDay()->toDateString(),  'status' => 'delayed'],
+            ['trip_date' => now()->toDateString(),            'status' => 'on_time'],
+            ['trip_date' => now()->addDay()->toDateString(),  'status' => 'scheduled'],
         ]);
 
         // A little fuel history for the first bus.

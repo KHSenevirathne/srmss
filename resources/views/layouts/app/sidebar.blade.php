@@ -15,6 +15,11 @@
                     <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
                         {{ __('Dashboard') }}
                     </flux:sidebar.item>
+                    @can('view-reports')
+                        <flux:sidebar.item icon="chart-bar" :href="route('reports')" :current="request()->routeIs('reports')" wire:navigate>
+                            {{ __('Reports') }}
+                        </flux:sidebar.item>
+                    @endcan
                 </flux:sidebar.group>
 
                 {{-- Operations — each item is shown only if the user holds the guarding permission. --}}
@@ -30,6 +35,11 @@
                     @can('manage-routes')
                         <flux:sidebar.item icon="map" :href="route('routes')" :current="request()->routeIs('routes')" wire:navigate>
                             {{ __('Routes') }}
+                        </flux:sidebar.item>
+                    @endcan
+                    @can('manage-schedules')
+                        <flux:sidebar.item icon="calendar-days" :href="route('schedules')" :current="request()->routeIs('schedules')" wire:navigate>
+                            {{ __('Schedules') }}
                         </flux:sidebar.item>
                     @endcan
                     @can('log-fuel')
@@ -54,16 +64,6 @@
             </flux:sidebar.nav>
 
             <flux:spacer />
-
-            <flux:sidebar.nav>
-                <flux:sidebar.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
-                    {{ __('Repository') }}
-                </flux:sidebar.item>
-
-                <flux:sidebar.item icon="book-open-text" href="https://laravel.com/docs/starter-kits#livewire" target="_blank">
-                    {{ __('Documentation') }}
-                </flux:sidebar.item>
-            </flux:sidebar.nav>
 
             <x-desktop-user-menu class="hidden lg:block" :name="auth()->user()->name" />
         </flux:sidebar>
