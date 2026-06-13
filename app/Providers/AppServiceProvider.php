@@ -2,9 +2,13 @@
 
 namespace App\Providers;
 
+use App\Models\ActivityLog;
 use Carbon\CarbonImmutable;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -24,6 +28,27 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+        $this->recordAuthActivity();
+    }
+
+    /** Audit trail (HR-02) for authentication events. */
+    protected function recordAuthActivity(): void
+    {
+        Event::listen(Login::class, fn (Login $event) => ActivityLog::create([
+            'user_id'     => $event->user->getAuthIdentifier(),
+            'event'       => 'login',
+            'description' => 'Logged in',
+        ]));
+
+        Event::listen(Logout::class, function (Logout $event) {
+            if ($event->user) {
+                ActivityLog::create([
+                    'user_id'     => $event->user->getAuthIdentifier(),
+                    'event'       => 'logout',
+                    'description' => 'Logged out',
+                ]);
+            }
+        });
     }
 
     /**

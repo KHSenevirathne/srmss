@@ -13,7 +13,7 @@ php artisan test --compact  # one-line summary
 
 - **Environment:** tests run against an in-memory **SQLite** database (`phpunit.xml`), rebuilt
   fresh for every test (`RefreshDatabase`), so they never touch the MySQL dev/production data.
-- **Latest run:** **122 passing, 292 assertions.**
+- **Latest run:** **129 passing, 304 assertions.**
 - **Technique:** the feature tests (Section A) are *black-box* — they drive each screen through
   its public behaviour (HTTP requests and Livewire actions) and assert on outcomes. The service
   tests (Section B) are *white-box* — they target the conflict and reporting logic directly.
@@ -87,8 +87,8 @@ user with no role, used to prove the permission gate).
 | TC-RTE-09 | Remove stop resequences | admin | Remove middle of three | Remaining stops renumber 1, 2 | Pass |
 | TC-RTE-10 | Delete route cascades stops | admin | Delete a route with stops | Route and its stops removed | Pass |
 | TC-RTE-11 | Stop with coordinates | admin | Add stop with lat/lng | Coordinates stored | Pass |
-| TC-RTE-12 | Map fallback (no key) | admin | Open Map with no API key set | "GOOGLE_MAPS_API_KEY" prompt shown | Pass |
-| TC-RTE-13 | Map renders (key + coords) | admin | Open Map with key + coords | Map container rendered, no fallback | Pass |
+| TC-RTE-12 | Map prompts for coordinates | admin | Open Map when stops have no lat/lng | "No stops have coordinates" prompt shown | Pass |
+| TC-RTE-13 | Map renders (Leaflet, no key) | admin | Open Map with coords, no API key | Map container rendered via Leaflet/OpenStreetMap | Pass |
 
 ### A6. Fuel logs (Phase 3)  — `tests/Feature/FuelLogsPageTest.php`
 
@@ -143,6 +143,18 @@ user with no role, used to prove the permission gate).
 | TC-DASH-03 | Summary cards | any | Seed routes/vehicles/trips | Cards show correct counts | Pass |
 | TC-DASH-04 | Trip-status board | any | Seed today's trips | Counts grouped by status | Pass |
 | TC-DASH-05 | Alerts panel | any | Seed expiring licence + overdue vehicle | Both surfaced as alerts | Pass |
+
+### A9b. Audit log (HR-02)  — `tests/Feature/ActivityLogTest.php`
+
+| ID | Scenario | Role | Input / steps | Expected result | Result |
+|---|---|---|---|---|---|
+| TC-AUD-01 | Create is logged | admin | Create a vehicle | `created` entry written with actor + label | Pass |
+| TC-AUD-02 | Update & delete logged | admin | Update then delete a vehicle | `updated` and `deleted` entries written | Pass |
+| TC-AUD-03 | Actor is null for system actions | — | Create a record with no auth user | Entry recorded with no user | Pass |
+| TC-AUD-04 | Guard: guest | none | GET `/activity-log` | Redirect to login | Pass |
+| TC-AUD-05 | Guard: admin allowed | admin | GET `/activity-log` | 200, log shown | Pass |
+| TC-AUD-06 | Guard: supervisor denied | supervisor | GET `/activity-log` | 403 Forbidden | Pass |
+| TC-AUD-07 | Guard: operator denied | operator | GET `/activity-log` | 403 Forbidden | Pass |
 
 ### A10. Reports & PDF (Phase 5)  — `tests/Feature/ReportsPageTest.php`
 
@@ -199,11 +211,12 @@ Pure tests of the overlap maths (no database).
 | Fuel logs | 7 | Pass |
 | Maintenance logs | 7 | Pass |
 | Schedules, conflict detection & trip status | 15 | Pass |
+| Audit log (HR-02) | 7 | Pass |
 | Dashboard | 5 | Pass |
 | Reports & PDF | 6 | Pass |
 | Conflict logic (unit) | 8 | Pass |
 | Reporting aggregations | 6 | Pass |
-| **Whole suite** | **122 tests / 292 assertions** | **Pass** |
+| **Whole suite** | **129 tests / 304 assertions** | **Pass** |
 
 > For the report: take screenshots of `php artisan test` output and of each screen named above
 > to evidence these results in the Testing section and the user manual appendix.

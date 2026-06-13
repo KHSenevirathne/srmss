@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class FuelLog extends Model
 {
+    use LogsActivity;
+
     protected $fillable = ['vehicle_id', 'trip_id', 'liters', 'cost', 'odometer', 'logged_at'];
 
     protected $casts = [

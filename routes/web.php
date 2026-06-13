@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ReportPdfController;
+use App\Livewire\ActivityLogViewer;
 use App\Livewire\Dashboard;
 use App\Livewire\DriverManager;
 use App\Livewire\FuelLogManager;
@@ -63,6 +64,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/users', UserManager::class)
         ->middleware('can:manage-users')
         ->name('users');
+
+    // Audit trail (HR-02) — read-only, admin only.
+    Route::get('/activity-log', ActivityLogViewer::class)
+        ->middleware('can:manage-users')
+        ->name('activity-log');
 });
 
 require __DIR__.'/settings.php';

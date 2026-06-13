@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MaintenanceLog extends Model
 {
+    use LogsActivity;
+
     protected $fillable = ['vehicle_id', 'type', 'description', 'cost', 'serviced_at', 'next_due_at'];
 
     protected $casts = [

@@ -59,6 +59,9 @@
                         <flux:sidebar.item icon="users" :href="route('users')" :current="request()->routeIs('users')" wire:navigate>
                             {{ __('Users') }}
                         </flux:sidebar.item>
+                        <flux:sidebar.item icon="clipboard-document-list" :href="route('activity-log')" :current="request()->routeIs('activity-log')" wire:navigate>
+                            {{ __('Activity Log') }}
+                        </flux:sidebar.item>
                     </flux:sidebar.group>
                 @endcan
             </flux:sidebar.nav>

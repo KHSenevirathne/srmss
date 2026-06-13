@@ -201,11 +201,7 @@
                     <button wire:click="closeMap" class="modal-close">✕</button>
                 </div>
                 <div class="modal-body">
-                    @if (! $mapsKey)
-                        <div class="callout-warn text-center">
-                            Add a <code class="font-mono">GOOGLE_MAPS_API_KEY</code> to your <code class="font-mono">.env</code> to enable the map.
-                        </div>
-                    @elseif ($mapStops->isEmpty())
+                    @if ($mapStops->isEmpty())
                         <div class="callout-muted">
                             No stops have coordinates yet. Add latitude/longitude to this route's stops to see them on the map.
                         </div>
@@ -226,11 +222,63 @@
 
     @script
     <script>
+        // Renders the route's stops + connecting line on a map. Uses Leaflet +
+        // OpenStreetMap by default (no key, no cost); if a Google Maps API key is
+        // configured it uses Google Maps instead. Same data either way.
         Alpine.data('routeMap', (stops, apiKey) => ({
             stops,
             apiKey,
             load() {
-                if (window.google && window.google.maps) { this.init(); return; }
+                if (this.apiKey) { this.loadGoogle(); } else { this.loadLeaflet(); }
+            },
+
+            // --- Leaflet + OpenStreetMap (default) ---
+            loadLeaflet() {
+                if (window.L) { this.initLeaflet(); return; }
+                if (! document.getElementById('leaflet-css')) {
+                    const link = document.createElement('link');
+                    link.id = 'leaflet-css';
+                    link.rel = 'stylesheet';
+                    link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+                    document.head.appendChild(link);
+                }
+                if (! document.getElementById('leaflet-sdk')) {
+                    const s = document.createElement('script');
+                    s.id = 'leaflet-sdk';
+                    s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+                    s.onload = () => window.dispatchEvent(new CustomEvent('leaflet-ready'));
+                    document.head.appendChild(s);
+                }
+                window.addEventListener('leaflet-ready', () => this.initLeaflet(), { once: true });
+            },
+            initLeaflet() {
+                if (! this.$refs.map || ! window.L) return;
+                // Make the default marker icons resolve from the CDN.
+                delete L.Icon.Default.prototype._getIconUrl;
+                L.Icon.Default.mergeOptions({
+                    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+                    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+                    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+                });
+                const map = L.map(this.$refs.map);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '&copy; OpenStreetMap contributors',
+                }).addTo(map);
+                const points = [];
+                this.stops.forEach((stop) => {
+                    const latlng = [stop.lat, stop.lng];
+                    L.marker(latlng).addTo(map).bindPopup(stop.seq + '. ' + stop.name);
+                    points.push(latlng);
+                });
+                L.polyline(points, { color: '#4f46e5', weight: 3 }).addTo(map);
+                map.fitBounds(points, { padding: [30, 30] });
+                setTimeout(() => map.invalidateSize(), 200);
+            },
+
+            // --- Google Maps (only when an API key is configured) ---
+            loadGoogle() {
+                if (window.google && window.google.maps) { this.initGoogle(); return; }
                 if (! document.getElementById('gmaps-sdk')) {
                     const s = document.createElement('script');
                     s.id = 'gmaps-sdk';
@@ -239,9 +287,9 @@
                     s.onload = () => window.dispatchEvent(new CustomEvent('gmaps-ready'));
                     document.head.appendChild(s);
                 }
-                window.addEventListener('gmaps-ready', () => this.init(), { once: true });
+                window.addEventListener('gmaps-ready', () => this.initGoogle(), { once: true });
             },
-            init() {
+            initGoogle() {
                 if (! this.$refs.map || ! window.google) return;
                 const map = new google.maps.Map(this.$refs.map, { zoom: 8, mapTypeControl: false });
                 const bounds = new google.maps.LatLngBounds();

@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Vehicle extends Model
 {
+    use LogsActivity;
+
     protected $fillable = [
         'registration_number', 'type', 'seating_capacity', 'mileage', 'status',
     ];

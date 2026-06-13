@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class BusRoute extends Model
 {
+    use LogsActivity;
+
     protected $table = 'bus_routes';
 
     protected $fillable = [

@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Driver extends Model
 {
+    use LogsActivity;
+
     protected $fillable = [
         'name', 'phone', 'email', 'address',
         'license_number', 'license_expiry', 'weekly_hours', 'status',

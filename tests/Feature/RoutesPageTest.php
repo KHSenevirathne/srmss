@@ -182,22 +182,21 @@ test('a stop can be added with coordinates', function () {
     expect((float) $stop->longitude)->toBe(80.2210);
 });
 
-test('the map shows a fallback when no API key is configured', function () {
-    config(['services.google_maps.key' => null]);
+test('the map prompts for coordinates when stops have none', function () {
     $admin = User::factory()->create()->assignRole('admin');
     $route = BusRoute::create([
         'code' => 'R-7', 'name' => 'R7', 'start_point' => 'A', 'end_point' => 'B',
     ]);
-    RouteStop::create(['bus_route_id' => $route->id, 'name' => 'S1', 'sequence' => 1, 'latitude' => 6.0, 'longitude' => 80.0]);
+    RouteStop::create(['bus_route_id' => $route->id, 'name' => 'S1', 'sequence' => 1]); // no lat/lng
 
     Livewire::actingAs($admin)
         ->test(RouteManager::class)
         ->call('viewMap', $route->id)
-        ->assertSee('GOOGLE_MAPS_API_KEY');
+        ->assertSee('No stops have coordinates');
 });
 
-test('the map renders when a key and coordinates are present', function () {
-    config(['services.google_maps.key' => 'test-key']);
+test('the map renders (via Leaflet) when stops have coordinates and no API key', function () {
+    config(['services.google_maps.key' => null]);
     $admin = User::factory()->create()->assignRole('admin');
     $route = BusRoute::create([
         'code' => 'R-8', 'name' => 'R8', 'start_point' => 'A', 'end_point' => 'B',
@@ -208,5 +207,5 @@ test('the map renders when a key and coordinates are present', function () {
         ->test(RouteManager::class)
         ->call('viewMap', $route->id)
         ->assertSee('routeMap')
-        ->assertDontSee('GOOGLE_MAPS_API_KEY');
+        ->assertDontSee('No stops have coordinates');
 });
