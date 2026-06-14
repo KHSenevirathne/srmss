@@ -10,6 +10,7 @@
 
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
 
     --color-zinc-50: #fafafa;
     --color-zinc-100: #f5f5f5;
@@ -385,5 +386,89 @@ select:focus[data-flux-control] {
     /* Small leading icon inside a card title. */
     .card-title-icon {
         @apply size-4 shrink-0 text-zinc-400 dark:text-zinc-500;
+    }
+
+    /* ---------------------------------------------------------------------
+       Industrial / control-room surfaces. Flat hairline panels, squared
+       corners, monospace data and uppercase micro-labels : a denser, more
+       operational read than the softer .card / .stat primitives.
+    --------------------------------------------------------------------- */
+
+    /* Hairline panel : the workhorse container for the operations dashboard. */
+    .panel {
+        @apply rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900;
+    }
+
+    .panel-head {
+        @apply flex items-center justify-between gap-3 border-b border-zinc-200 px-5 py-3.5 dark:border-zinc-800;
+    }
+
+    .panel-title {
+        @apply flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400;
+    }
+
+    .panel-title svg {
+        @apply size-4 text-zinc-400 dark:text-zinc-500;
+    }
+
+    .panel-body {
+        @apply p-5;
+    }
+
+    /* KPI / metric cell : uppercase micro-label over a monospace value. */
+    .metric {
+        @apply flex flex-col gap-1 rounded-xl border border-zinc-200 bg-white p-5 transition-colors hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700;
+    }
+
+    .metric-label {
+        @apply text-[11px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400;
+    }
+
+    .metric-value {
+        @apply font-mono text-3xl font-semibold tracking-tight tabular-nums text-zinc-900 dark:text-zinc-50;
+    }
+
+    .metric-sub {
+        @apply font-mono text-xs tabular-nums text-zinc-400 dark:text-zinc-500;
+    }
+
+    /* Monochrome, squared icon glyph : neutral by default so colour reads as
+       signal (pills, bars) rather than decoration. */
+    .glyph {
+        @apply inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-zinc-200 bg-zinc-50 text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800/60 dark:text-zinc-400;
+    }
+
+    .glyph svg {
+        @apply size-5;
+    }
+
+    /* Status pill : bordered, condensed, uppercase. */
+    .pill {
+        @apply inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap;
+    }
+
+    .pill-green {
+        @apply border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300;
+    }
+
+    .pill-amber {
+        @apply border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300;
+    }
+
+    .pill-red {
+        @apply border-red-200 bg-red-50 text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300;
+    }
+
+    .pill-blue {
+        @apply border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-300;
+    }
+
+    .pill-zinc {
+        @apply border-zinc-200 bg-zinc-50 text-zinc-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300;
+    }
+
+    /* Live status dot, sits inside a pill or beside a label. */
+    .dot {
+        @apply inline-block size-1.5 rounded-full bg-current;
     }
 }
