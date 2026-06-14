@@ -4,7 +4,7 @@
             <span class="icon-chip icon-chip-zinc"><flux:icon.clipboard-document-list /></span>
             <div>
                 <h1 class="page-title">Activity Log</h1>
-                <p class="page-sub">Audit trail of critical user activity — read-only and append-only.</p>
+                <p class="page-sub">Audit trail of critical user activity : read-only and append-only.</p>
             </div>
         </div>
     </div>
@@ -60,15 +60,19 @@
                                 @endphp
                                 <span class="badge {{ $badge }}">{{ $log->event }}</span>
                             </td>
-                            <td>{{ $log->subject_type ? $log->subject_type . ' #' . $log->subject_id : '—' }}</td>
+                            <td>{{ $log->subject_type ? $log->subject_type . ' #' . $log->subject_id : '-' }}</td>
                             <td class="whitespace-normal">{{ $log->description }}</td>
                         </tr>
                     @empty
-                        <tr><td colspan="5" class="empty">No activity recorded yet.</td></tr>
+                        <tr>
+                            <td colspan="5" class="empty">No activity recorded yet.</td>
+                        </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-        @if ($logs->hasPages())<div class="table-foot">{{ $logs->links() }}</div>@endif
+        @if ($logs->hasPages())
+            <div class="table-foot">{{ $logs->links() }}</div>
+        @endif
     </div>
 </div>

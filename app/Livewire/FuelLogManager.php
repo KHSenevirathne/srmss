@@ -10,7 +10,7 @@ use Livewire\WithPagination;
 use Livewire\Attributes\Validate;
 
 /**
- * Fuel logging (Phase 3) — record fuel per vehicle, filter by vehicle + date
+ * Fuel logging (Phase 3) : record fuel per vehicle, filter by vehicle + date
  * range. Follows the VehicleManager pattern. The whole screen is guarded by the
  * `log-fuel` permission (route middleware), which every role holds, so there is
  * no per-button @can gating here.

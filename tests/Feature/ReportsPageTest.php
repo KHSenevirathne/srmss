@@ -10,7 +10,7 @@ use Database\Seeders\RolesAndPermissionsSeeder;
 use Livewire\Livewire;
 
 /*
- * Phase 5 — Reports screen + PDF export. Access is gated by view-reports (held by
+ * Phase 5 : Reports screen + PDF export. Access is gated by view-reports (held by
  * every role). RefreshDatabase is applied globally in tests/Pest.php.
  */
 

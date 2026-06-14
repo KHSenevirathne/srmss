@@ -1,4 +1,4 @@
-# Modules — features & acceptance criteria
+# Modules : features & acceptance criteria
 
 Each module maps to a section of the case study. Build them per the roadmap phases in
 `CLAUDE.md`, following the `VehicleManager` pattern for CRUD. "Done" = acceptance criteria met
@@ -26,7 +26,7 @@ Each module maps to a section of the case study. Build them per the roadmap phas
   a Blade partial driven by Alpine). Optional: auto-estimate distance via the API.
 - ✅ A route displays its stops in order and renders on a map; an unavailable bus can't be assigned.
 
-## 4. Schedule management  *(Phase 4)* — hardest module
+## 4. Schedule management  *(Phase 4)* : hardest module
 - Create daily/weekly/monthly timetables (route + vehicle + driver + times + validity range).
 - **Conflict detection** (`ScheduleConflictService`): reject a new/edited schedule if the same
   vehicle or driver is already committed to an overlapping time window on overlapping dates.
@@ -38,7 +38,7 @@ Each module maps to a section of the case study. Build them per the roadmap phas
 
 ## 5. Depot dashboard  *(Phase 5)*
 - Summary cards: total routes, active trips today, available buses, assigned drivers.
-- Live trip-status board (on-time / delayed / completed) — Livewire polling to refresh.
+- Live trip-status board (on-time / delayed / completed) : Livewire polling to refresh.
 - Vehicle utilization widget; today's schedule overview.
 - Alerts panel: licence expiring soon, service due, schedule conflicts.
 - ✅ Cards reflect real seeded data; status board updates without a full page reload.
@@ -51,8 +51,8 @@ Each module maps to a section of the case study. Build them per the roadmap phas
 
 ## 7. Reporting & analytics  *(Phase 5)*
 - Reports: trip-completion (weekly/monthly), route-performance, fuel-consumption trend,
-  vehicle utilization — all with date-range filters.
-- **Export to PDF** (barryvdh/laravel-dompdf) — required by the brief.
+  vehicle utilization : all with date-range filters.
+- **Export to PDF** (barryvdh/laravel-dompdf) : required by the brief.
 - Charts (Chart.js) for utilization + fuel trends.
 - Aggregation logic in `app/Services/ReportService.php`, unit-tested.
 - ✅ A report renders on screen, downloads as a PDF, and the numbers match the data.

@@ -8,7 +8,7 @@ use Database\Seeders\RolesAndPermissionsSeeder;
 use Livewire\Livewire;
 
 /*
- * Phase 3 — Fuel logs. Access control (log-fuel — held by every role), record a
+ * Phase 3 : Fuel logs. Access control (log-fuel : held by every role), record a
  * fuel entry, vehicle + date-range filtering, and validation.
  * RefreshDatabase is applied globally in tests/Pest.php.
  */

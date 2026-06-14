@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * One entry in the audit trail (HR-02). Created by the LogsActivity trait and the
- * auth event listeners — never edited or deleted through the UI, so the log stays
+ * auth event listeners : never edited or deleted through the UI, so the log stays
  * a trustworthy record. This model deliberately does NOT use LogsActivity itself
  * (that would recurse).
  */

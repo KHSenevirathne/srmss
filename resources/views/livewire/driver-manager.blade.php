@@ -1,7 +1,9 @@
 <div class="page">
     <div class="page-header">
         <div class="page-heading">
-            <span class="icon-chip icon-chip-blue"><flux:icon.identification /></span>
+            <span class="icon-chip icon-chip-blue">
+                <flux:icon.identification />
+            </span>
             <div>
                 <h1 class="page-title">Drivers</h1>
                 <p class="page-sub">Driver records, licence validity and availability.</p>
@@ -19,7 +21,8 @@
     <div class="filter-bar">
         <div class="w-full sm:w-64">
             <label class="label">Search</label>
-            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Name or licence no…" class="input">
+            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Name or licence no…"
+                class="input">
         </div>
         <div class="w-full sm:w-44">
             <label class="label">Status</label>
@@ -50,8 +53,8 @@
                     @forelse ($drivers as $driver)
                         <tr wire:key="driver-{{ $driver->id }}">
                             <td class="td-strong">{{ $driver->name }}</td>
-                            <td class="tabular-nums">{{ $driver->employee_number ?: '—' }}</td>
-                            <td>{{ $driver->phone ?: '—' }}</td>
+                            <td class="tabular-nums">{{ $driver->employee_number ?: '-' }}</td>
+                            <td>{{ $driver->phone ?: '-' }}</td>
                             <td>{{ $driver->license_number }}</td>
                             <td>
                                 {{ $driver->license_expiry?->format('Y-m-d') }}
@@ -61,26 +64,30 @@
                             </td>
                             <td class="td-num">{{ $driver->weekly_hours }}</td>
                             <td>
-                                <span class="badge {{ $driver->status === 'active' ? 'badge-green' : 'badge-zinc' }}">{{ $driver->status }}</span>
+                                <span
+                                    class="badge {{ $driver->status === 'active' ? 'badge-green' : 'badge-zinc' }}">{{ $driver->status }}</span>
                             </td>
                             <td class="td-actions">
                                 @can('manage-fleet')
                                     <button wire:click="edit({{ $driver->id }})" class="link-action">Edit</button>
-                                    <button wire:click="delete({{ $driver->id }})"
-                                            wire:confirm="Delete this driver?"
-                                            class="link-danger">Delete</button>
+                                    <button wire:click="delete({{ $driver->id }})" wire:confirm="Delete this driver?"
+                                        class="link-danger">Delete</button>
                                 @else
                                     <span class="text-xs text-zinc-400 dark:text-zinc-500">View only</span>
                                 @endcan
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="8" class="empty">No drivers yet.</td></tr>
+                        <tr>
+                            <td colspan="8" class="empty">No drivers yet.</td>
+                        </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-        @if ($drivers->hasPages())<div class="table-foot">{{ $drivers->links() }}</div>@endif
+        @if ($drivers->hasPages())
+            <div class="table-foot">{{ $drivers->links() }}</div>
+        @endif
     </div>
 
     {{-- Create / edit modal --}}
@@ -95,18 +102,23 @@
                     <div>
                         <label class="label">Name</label>
                         <input type="text" wire:model="name" class="input">
-                        @error('name') <p class="error-text">{{ $message }}</p> @enderror
+                        @error('name')
+                            <p class="error-text">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div class="form-grid-2">
                         <div>
                             <label class="label">NIC</label>
                             <input type="text" wire:model="nic" placeholder="e.g. 199012345678" class="input">
-                            @error('nic') <p class="error-text">{{ $message }}</p> @enderror
+                            @error('nic')
+                                <p class="error-text">{{ $message }}</p>
+                            @enderror
                         </div>
                         <div>
                             <label class="label">Employee Number</label>
-                            <input type="text" class="input bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400"
-                                   value="{{ $editingId ? $employeeNumber : 'Auto-generated on save' }}" disabled>
+                            <input type="text"
+                                class="input bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400"
+                                value="{{ $editingId ? $employeeNumber : 'Auto-generated on save' }}" disabled>
                             <p class="mt-1 text-xs text-zinc-400">Assigned automatically : not editable.</p>
                         </div>
                     </div>
@@ -114,36 +126,48 @@
                         <div>
                             <label class="label">Phone</label>
                             <input type="text" wire:model="phone" class="input">
-                            @error('phone') <p class="error-text">{{ $message }}</p> @enderror
+                            @error('phone')
+                                <p class="error-text">{{ $message }}</p>
+                            @enderror
                         </div>
                         <div>
                             <label class="label">Email</label>
                             <input type="email" wire:model="email" class="input">
-                            @error('email') <p class="error-text">{{ $message }}</p> @enderror
+                            @error('email')
+                                <p class="error-text">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
                     <div>
                         <label class="label">Address</label>
                         <input type="text" wire:model="address" class="input">
-                        @error('address') <p class="error-text">{{ $message }}</p> @enderror
+                        @error('address')
+                            <p class="error-text">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div class="form-grid-2">
                         <div>
                             <label class="label">Licence No</label>
                             <input type="text" wire:model="license_number" class="input">
-                            @error('license_number') <p class="error-text">{{ $message }}</p> @enderror
+                            @error('license_number')
+                                <p class="error-text">{{ $message }}</p>
+                            @enderror
                         </div>
                         <div>
                             <label class="label">Licence Expiry</label>
                             <input type="date" wire:model="license_expiry" class="input">
-                            @error('license_expiry') <p class="error-text">{{ $message }}</p> @enderror
+                            @error('license_expiry')
+                                <p class="error-text">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
                     <div class="form-grid-2">
                         <div>
                             <label class="label">Weekly Hours</label>
                             <input type="number" wire:model="weekly_hours" class="input">
-                            @error('weekly_hours') <p class="error-text">{{ $message }}</p> @enderror
+                            @error('weekly_hours')
+                                <p class="error-text">{{ $message }}</p>
+                            @enderror
                         </div>
                         <div>
                             <label class="label">Status</label>

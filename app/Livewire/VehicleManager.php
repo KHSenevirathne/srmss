@@ -8,7 +8,7 @@ use Livewire\WithPagination;
 use Livewire\Attributes\Validate;
 
 /**
- * REFERENCE PATTERN — full CRUD for the Vehicles module.
+ * REFERENCE PATTERN : full CRUD for the Vehicles module.
  *
  * This is the template to replicate for the other master-data modules
  * (Drivers, Routes, Fuel logs, Maintenance logs, etc). It demonstrates:
@@ -19,7 +19,7 @@ use Livewire\Attributes\Validate;
  *
  * Works on Livewire 3 and 4 (class-based component).
  * Compatible with the spatie/laravel-permission gate checks added in
- * Phase 1 — wrap destructive buttons in @can('manage-fleet') in Blade.
+ * Phase 1 : wrap destructive buttons in @can('manage-fleet') in Blade.
  */
 class VehicleManager extends Component
 {

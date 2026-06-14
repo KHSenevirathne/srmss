@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Hash;
  * Week-8 demo. Run with:  php artisan db:seed --class=DemoDataSeeder
  *
  * The authorisation model (roles + permissions) lives in its own
- * RolesAndPermissionsSeeder — this seeder only creates the three demo logins
+ * RolesAndPermissionsSeeder : this seeder only creates the three demo logins
  * (one per role) plus example fleet/route/schedule records.
  */
 class DemoDataSeeder extends Seeder
@@ -28,7 +28,7 @@ class DemoDataSeeder extends Seeder
         // Build roles + permissions first (idempotent, safe to re-run).
         $this->call(RolesAndPermissionsSeeder::class);
 
-        // One demo login per role — password is "password" for all three.
+        // One demo login per role : password is "password" for all three.
         $this->createUser('Depot Admin', 'admin@srmss.test', 'admin');
         $this->createUser('Shift Supervisor', 'supervisor@srmss.test', 'supervisor');
         $this->createUser('Fuel Operator', 'operator@srmss.test', 'operator');

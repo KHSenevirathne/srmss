@@ -8,7 +8,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 
 /**
- * Audit-trail viewer (HR-02) — a read-only window onto the activity_logs table,
+ * Audit-trail viewer (HR-02) : a read-only window onto the activity_logs table,
  * filterable by user and event. Admin only (guarded by `manage-users` on the
  * route). There is deliberately no create/edit/delete here: the log is an
  * append-only record written automatically elsewhere.

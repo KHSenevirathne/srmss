@@ -7,7 +7,7 @@ use Database\Seeders\RolesAndPermissionsSeeder;
 use Livewire\Livewire;
 
 /*
- * Phase 1 — proves the role-aware guard on the Vehicles screen:
+ * Phase 1 : proves the role-aware guard on the Vehicles screen:
  *   - guests are bounced to login,
  *   - a user WITH manage-fleet (admin) can open the page (also confirms the
  *     full-page Livewire component renders inside the app layout),

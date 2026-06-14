@@ -29,7 +29,7 @@ class Driver extends Model
         });
     }
 
-    /** Next short employee number, e.g. E-001 — one past the current highest. */
+    /** Next short employee number, e.g. E-001 : one past the current highest. */
     public static function nextEmployeeNumber(): string
     {
         $max = static::query()

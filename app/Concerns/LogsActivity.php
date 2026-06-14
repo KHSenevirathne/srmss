@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Drop-in audit logging (HR-02). Any model that uses this trait automatically
- * writes an ActivityLog row whenever it is created, updated, or deleted —
+ * writes an ActivityLog row whenever it is created, updated, or deleted :
  * capturing the acting user (if any), the action, and a readable label.
  *
  * Eloquent model events are the hook, so logging happens no matter which screen

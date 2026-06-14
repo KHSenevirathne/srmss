@@ -14,9 +14,9 @@ php artisan test --compact  # one-line summary
 - **Environment:** tests run against an in-memory **SQLite** database (`phpunit.xml`), rebuilt
   fresh for every test (`RefreshDatabase`), so they never touch the MySQL dev/production data.
 - **Latest run:** **129 passing, 304 assertions.**
-- **Technique:** the feature tests (Section A) are *black-box* — they drive each screen through
+- **Technique:** the feature tests (Section A) are *black-box* : they drive each screen through
   its public behaviour (HTTP requests and Livewire actions) and assert on outcomes. The service
-  tests (Section B) are *white-box* — they target the conflict and reporting logic directly.
+  tests (Section B) are *white-box* : they target the conflict and reporting logic directly.
 
 Roles referenced below (see `database/seeders/RolesAndPermissionsSeeder.php`):
 **admin** (all), **supervisor** (operate + view), **operator** (log fuel + view), **none** (a
@@ -26,7 +26,7 @@ user with no role, used to prove the permission gate).
 
 ## A. Black-box test cases (feature tests)
 
-### A1. Authentication & access control  — `tests/Feature/Auth/*`
+### A1. Authentication & access control  : `tests/Feature/Auth/*`
 
 | ID | Scenario | Input / steps | Expected result | Result |
 |---|---|---|---|---|
@@ -35,7 +35,7 @@ user with no role, used to prove the permission gate).
 | TC-AUTH-03 | Password reset link | Request reset for an email | Reset notification dispatched | Pass |
 | TC-AUTH-04 | Guest is blocked | Visit any guarded screen while logged out | Redirect to `/login` | Pass |
 
-### A2. User management (Phase 1)  — `tests/Feature/UsersPageTest.php`
+### A2. User management (Phase 1)  : `tests/Feature/UsersPageTest.php`
 
 | ID | Scenario | Role | Input / steps | Expected result | Result |
 |---|---|---|---|---|---|
@@ -49,7 +49,7 @@ user with no role, used to prove the permission gate).
 | TC-USR-08 | Reassign role on edit | admin | Edit a user, change role to supervisor | Old role removed, new role applied | Pass |
 | TC-USR-09 | Cannot self-delete | admin | Delete own account | Blocked; account still exists | Pass |
 
-### A3. Vehicles (Phase 2)  — `tests/Feature/VehiclesPageTest.php`
+### A3. Vehicles (Phase 2)  : `tests/Feature/VehiclesPageTest.php`
 
 | ID | Scenario | Role | Input / steps | Expected result | Result |
 |---|---|---|---|---|---|
@@ -58,7 +58,7 @@ user with no role, used to prove the permission gate).
 | TC-VEH-03 | Guard: no permission | operator | GET `/vehicles` | 403 Forbidden | Pass |
 | TC-VEH-04 | Status filter | admin | Filter status = maintenance | Only maintenance vehicles listed | Pass |
 
-### A4. Drivers (Phase 2)  — `tests/Feature/DriversPageTest.php`
+### A4. Drivers (Phase 2)  : `tests/Feature/DriversPageTest.php`
 
 | ID | Scenario | Role | Input / steps | Expected result | Result |
 |---|---|---|---|---|---|
@@ -72,7 +72,7 @@ user with no role, used to prove the permission gate).
 | TC-DRV-08 | Duplicate licence number | admin | Create with an existing `license_number` | Validation error, not saved | Pass |
 | TC-DRV-09 | Status filter | admin | Filter status = inactive | Only inactive drivers listed | Pass |
 
-### A5. Routes & stops + map (Phase 3)  — `tests/Feature/RoutesPageTest.php`
+### A5. Routes & stops + map (Phase 3)  : `tests/Feature/RoutesPageTest.php`
 
 | ID | Scenario | Role | Input / steps | Expected result | Result |
 |---|---|---|---|---|---|
@@ -90,7 +90,7 @@ user with no role, used to prove the permission gate).
 | TC-RTE-12 | Map prompts for coordinates | admin | Open Map when stops have no lat/lng | "No stops have coordinates" prompt shown | Pass |
 | TC-RTE-13 | Map renders (Leaflet, no key) | admin | Open Map with coords, no API key | Map container rendered via Leaflet/OpenStreetMap | Pass |
 
-### A6. Fuel logs (Phase 3)  — `tests/Feature/FuelLogsPageTest.php`
+### A6. Fuel logs (Phase 3)  : `tests/Feature/FuelLogsPageTest.php`
 
 | ID | Scenario | Role | Input / steps | Expected result | Result |
 |---|---|---|---|---|---|
@@ -102,7 +102,7 @@ user with no role, used to prove the permission gate).
 | TC-FUEL-06 | Filter by vehicle | operator | Select a vehicle | Only that vehicle's logs listed | Pass |
 | TC-FUEL-07 | Filter by date range | operator | Set From/To window | Only in-range logs listed | Pass |
 
-### A7. Maintenance logs (Phase 3)  — `tests/Feature/MaintenanceLogsPageTest.php`
+### A7. Maintenance logs (Phase 3)  : `tests/Feature/MaintenanceLogsPageTest.php`
 
 | ID | Scenario | Role | Input / steps | Expected result | Result |
 |---|---|---|---|---|---|
@@ -112,9 +112,9 @@ user with no role, used to prove the permission gate).
 | TC-MNT-04 | Record maintenance | operator | Fill vehicle/type/desc/cost/dates | Maintenance log saved | Pass |
 | TC-MNT-05 | Next-due ≥ serviced | operator | Set next_due before serviced | Validation error on `next_due_at` | Pass |
 | TC-MNT-06 | Required fields | operator | Save with blanks | Validation errors shown | Pass |
-| TC-MNT-07 | Service-due flag (overdue) | — | next_due in the past | "service due" badge shown | Pass |
+| TC-MNT-07 | Service-due flag (overdue) | : | next_due in the past | "service due" badge shown | Pass |
 
-### A8. Schedules & conflict detection (Phase 4)  — `tests/Feature/SchedulesPageTest.php`
+### A8. Schedules & conflict detection (Phase 4)  : `tests/Feature/SchedulesPageTest.php`
 
 | ID | Scenario | Role | Input / steps | Expected result | Result |
 |---|---|---|---|---|---|
@@ -123,8 +123,8 @@ user with no role, used to prove the permission gate).
 | TC-SCH-03 | Guard: no permission | operator | GET `/schedules` | 403 Forbidden | Pass |
 | TC-SCH-04 | Create valid schedule | admin | Fill route/vehicle/driver/times/dates | Schedule saved | Pass |
 | TC-SCH-05 | Arrival after departure | admin | Departure 10:00, arrival 09:00 | Validation error on `arrival_time` | Pass |
-| TC-SCH-06 | **Conflict — same vehicle** | admin | New schedule, same vehicle, overlapping time/date | Blocked with conflict message, not saved | Pass |
-| TC-SCH-07 | **Conflict — same driver** | admin | New schedule, same driver, overlapping time/date | Blocked with conflict message, not saved | Pass |
+| TC-SCH-06 | **Conflict : same vehicle** | admin | New schedule, same vehicle, overlapping time/date | Blocked with conflict message, not saved | Pass |
+| TC-SCH-07 | **Conflict : same driver** | admin | New schedule, same driver, overlapping time/date | Blocked with conflict message, not saved | Pass |
 | TC-SCH-08 | No conflict (back-to-back) | admin | Same vehicle, 10:00–12:00 after 08:00–10:00 | Saved successfully | Pass |
 | TC-SCH-09 | Cancelled ≠ conflict | admin | Overlap an existing *cancelled* schedule | Saved successfully | Pass |
 | TC-SCH-10 | Edit ignores self | admin | Edit a schedule's own time | No self-conflict; saved | Pass |
@@ -134,7 +134,7 @@ user with no role, used to prove the permission gate).
 | TC-SCH-14 | Update a trip's live status | admin | Trips panel → set trip to "delayed" | Trip status saved; dashboard board reflects it | Pass |
 | TC-SCH-15 | Trip update is schedule-scoped | admin | Update a trip belonging to another schedule | Rejected (404); status unchanged | Pass |
 
-### A9. Dashboard (Phase 5)  — `tests/Feature/DashboardTest.php`
+### A9. Dashboard (Phase 5)  : `tests/Feature/DashboardTest.php`
 
 | ID | Scenario | Role | Input / steps | Expected result | Result |
 |---|---|---|---|---|---|
@@ -144,19 +144,19 @@ user with no role, used to prove the permission gate).
 | TC-DASH-04 | Trip-status board | any | Seed today's trips | Counts grouped by status | Pass |
 | TC-DASH-05 | Alerts panel | any | Seed expiring licence + overdue vehicle | Both surfaced as alerts | Pass |
 
-### A9b. Audit log (HR-02)  — `tests/Feature/ActivityLogTest.php`
+### A9b. Audit log (HR-02)  : `tests/Feature/ActivityLogTest.php`
 
 | ID | Scenario | Role | Input / steps | Expected result | Result |
 |---|---|---|---|---|---|
 | TC-AUD-01 | Create is logged | admin | Create a vehicle | `created` entry written with actor + label | Pass |
 | TC-AUD-02 | Update & delete logged | admin | Update then delete a vehicle | `updated` and `deleted` entries written | Pass |
-| TC-AUD-03 | Actor is null for system actions | — | Create a record with no auth user | Entry recorded with no user | Pass |
+| TC-AUD-03 | Actor is null for system actions | : | Create a record with no auth user | Entry recorded with no user | Pass |
 | TC-AUD-04 | Guard: guest | none | GET `/activity-log` | Redirect to login | Pass |
 | TC-AUD-05 | Guard: admin allowed | admin | GET `/activity-log` | 200, log shown | Pass |
 | TC-AUD-06 | Guard: supervisor denied | supervisor | GET `/activity-log` | 403 Forbidden | Pass |
 | TC-AUD-07 | Guard: operator denied | operator | GET `/activity-log` | 403 Forbidden | Pass |
 
-### A10. Reports & PDF (Phase 5)  — `tests/Feature/ReportsPageTest.php`
+### A10. Reports & PDF (Phase 5)  : `tests/Feature/ReportsPageTest.php`
 
 | ID | Scenario | Role | Input / steps | Expected result | Result |
 |---|---|---|---|---|---|
@@ -171,7 +171,7 @@ user with no role, used to prove the permission gate).
 
 ## B. White-box test cases (unit / service logic)
 
-### B1. Schedule conflict logic  — `tests/Unit/ScheduleConflictServiceTest.php`
+### B1. Schedule conflict logic  : `tests/Unit/ScheduleConflictServiceTest.php`
 
 Pure tests of the overlap maths (no database).
 
@@ -186,7 +186,7 @@ Pure tests of the overlap maths (no database).
 | TC-CONF-07 | Disjoint times | 06:00–07:00 vs 09:00–10:00 | false | Pass |
 | TC-CONF-08 | DB time format tolerated | `08:00` vs `09:00:00` | compares correctly | Pass |
 
-### B2. Reporting aggregations  — `tests/Feature/ReportServiceTest.php`
+### B2. Reporting aggregations  : `tests/Feature/ReportServiceTest.php`
 
 | ID | Scenario | Input | Expected result | Result |
 |---|---|---|---|---|

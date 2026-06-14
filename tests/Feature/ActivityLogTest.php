@@ -6,7 +6,7 @@ use App\Models\Vehicle;
 use Database\Seeders\RolesAndPermissionsSeeder;
 
 /*
- * HR-02 — audit trail. The LogsActivity trait records create/update/delete on the
+ * HR-02 : audit trail. The LogsActivity trait records create/update/delete on the
  * audited models, and the viewer is restricted to administrators.
  * RefreshDatabase is applied globally in tests/Pest.php.
  */

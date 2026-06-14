@@ -9,7 +9,7 @@ use Livewire\WithPagination;
 use Livewire\Attributes\Validate;
 
 /**
- * Maintenance logging (Phase 3) — routine/corrective records per vehicle, with a
+ * Maintenance logging (Phase 3) : routine/corrective records per vehicle, with a
  * "service due" flag when next_due_at has reached/passed today (see the
  * MaintenanceLog::serviceDue() helper). Filter by vehicle + service-date range.
  * Guarded by `log-fuel` at the route level (every role holds it).

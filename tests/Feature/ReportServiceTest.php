@@ -10,7 +10,7 @@ use App\Services\ReportService;
 use Illuminate\Support\Carbon;
 
 /*
- * Phase 5 — ReportService aggregation tests. DB-backed (the figures come from
+ * Phase 5 : ReportService aggregation tests. DB-backed (the figures come from
  * real rows); RefreshDatabase is applied globally in tests/Pest.php.
  */
 

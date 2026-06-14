@@ -10,7 +10,7 @@ const OUT = path.join(__dirname, 'ui-shots');
     fs.mkdirSync(OUT, { recursive: true });
     let browser;
     for (const channel of ['msedge', 'chrome']) {
-        try { browser = await chromium.launch({ channel, headless: true }); break; } catch {}
+        try { browser = await chromium.launch({ channel, headless: true }); break; } catch { }
     }
     if (!browser) { console.error('NO BROWSER'); process.exit(1); }
 
@@ -37,7 +37,7 @@ const OUT = path.join(__dirname, 'ui-shots');
     await page.waitForTimeout(800);
     console.log('VEHICLE CREATED');
 
-    // Route map (Leaflet) — open Map on the seeded R-138 (has coordinates)
+    // Route map (Leaflet) : open Map on the seeded R-138 (has coordinates)
     await page.goto(BASE + '/routes', { waitUntil: 'networkidle' });
     await page.click('tr:has-text("R-138") button:has-text("Map")');
     // Wait for Leaflet tiles to actually load from OpenStreetMap

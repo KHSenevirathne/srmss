@@ -10,7 +10,7 @@ use Database\Seeders\RolesAndPermissionsSeeder;
 use Livewire\Livewire;
 
 /*
- * Phase 4 — schedule management + conflict detection (DB-backed). The pure
+ * Phase 4 : schedule management + conflict detection (DB-backed). The pure
  * overlap maths is unit-tested in tests/Unit/ScheduleConflictServiceTest.php.
  * RefreshDatabase is applied globally in tests/Pest.php.
  */

@@ -6,7 +6,7 @@ use Database\Seeders\RolesAndPermissionsSeeder;
 use Livewire\Livewire;
 
 /*
- * Phase 1 — user management. Only admins (manage-users) may reach it; an admin
+ * Phase 1 : user management. Only admins (manage-users) may reach it; an admin
  * can create a user and assign a role, email is unique, and you cannot delete
  * your own account. RefreshDatabase is applied globally in tests/Pest.php.
  */

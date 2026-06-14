@@ -1,10 +1,12 @@
 <div class="page">
     <div class="page-header">
         <div class="page-heading">
-            <span class="icon-chip icon-chip-blue"><flux:icon.users /></span>
+            <span class="icon-chip icon-chip-blue">
+                <flux:icon.users />
+            </span>
             <div>
                 <h1 class="page-title">Users</h1>
-                <p class="page-sub">Create accounts and assign roles — admin, supervisor or operator.</p>
+                <p class="page-sub">Create accounts and assign roles : admin, supervisor or operator.</p>
             </div>
         </div>
         <button wire:click="create" class="btn-primary">+ Add User</button>
@@ -38,28 +40,32 @@
                             <td class="td-strong">{{ $user->name }}</td>
                             <td>{{ $user->email }}</td>
                             <td>
-                                <span class="badge {{ $user->roles->first()?->name === 'admin' ? 'badge-blue' : 'badge-zinc' }}">
-                                    {{ $user->roles->first()?->name ?? '—' }}
+                                <span
+                                    class="badge {{ $user->roles->first()?->name === 'admin' ? 'badge-blue' : 'badge-zinc' }}">
+                                    {{ $user->roles->first()?->name ?? '-' }}
                                 </span>
                             </td>
                             <td class="td-actions">
                                 <button wire:click="edit({{ $user->id }})" class="link-action">Edit</button>
                                 @if ($user->id !== auth()->id())
-                                    <button wire:click="delete({{ $user->id }})"
-                                            wire:confirm="Delete this user?"
-                                            class="link-danger">Delete</button>
+                                    <button wire:click="delete({{ $user->id }})" wire:confirm="Delete this user?"
+                                        class="link-danger">Delete</button>
                                 @else
                                     <span class="text-xs text-zinc-400 dark:text-zinc-500">(you)</span>
                                 @endif
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="4" class="empty">No users found.</td></tr>
+                        <tr>
+                            <td colspan="4" class="empty">No users found.</td>
+                        </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-        @if ($users->hasPages())<div class="table-foot">{{ $users->links() }}</div>@endif
+        @if ($users->hasPages())
+            <div class="table-foot">{{ $users->links() }}</div>
+        @endif
     </div>
 
     {{-- Create / edit modal --}}
@@ -74,18 +80,24 @@
                     <div>
                         <label class="label">Name</label>
                         <input type="text" wire:model="name" class="input">
-                        @error('name') <p class="error-text">{{ $message }}</p> @enderror
+                        @error('name')
+                            <p class="error-text">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div>
                         <label class="label">Email</label>
                         <input type="email" wire:model="email" class="input">
-                        @error('email') <p class="error-text">{{ $message }}</p> @enderror
+                        @error('email')
+                            <p class="error-text">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div class="form-grid-2">
                         <div>
                             <label class="label">Password {{ $editingId ? '(blank = keep current)' : '' }}</label>
                             <input type="password" wire:model="password" class="input">
-                            @error('password') <p class="error-text">{{ $message }}</p> @enderror
+                            @error('password')
+                                <p class="error-text">{{ $message }}</p>
+                            @enderror
                         </div>
                         <div>
                             <label class="label">Role</label>
@@ -94,7 +106,9 @@
                                     <option value="{{ $r }}">{{ ucfirst($r) }}</option>
                                 @endforeach
                             </select>
-                            @error('role') <p class="error-text">{{ $message }}</p> @enderror
+                            @error('role')
+                                <p class="error-text">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
                 </div>

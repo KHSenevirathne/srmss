@@ -9,7 +9,7 @@ use Livewire\WithPagination;
 use Spatie\Permission\Models\Role;
 
 /**
- * User management (Phase 1) — admin-only screen to create users and assign a
+ * User management (Phase 1) : admin-only screen to create users and assign a
  * role. Follows the VehicleManager CRUD pattern. Guarded by `manage-users`,
  * which only the admin role holds, so the route 403s for everyone else.
  *

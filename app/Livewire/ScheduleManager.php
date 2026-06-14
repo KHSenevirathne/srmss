@@ -12,7 +12,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 
 /**
- * Schedule management (Phase 4) — the hardest module.
+ * Schedule management (Phase 4) : the hardest module.
  *
  * Create/edit/cancel timetables (route + vehicle + driver + times + frequency +
  * validity range). On save it asks ScheduleConflictService whether the chosen
@@ -115,7 +115,7 @@ class ScheduleManager extends Component
             return;
         }
 
-        // Same rule for drivers — only an active driver can be assigned (current
+        // Same rule for drivers : only an active driver can be assigned (current
         // driver on the schedule being edited is exempt).
         $driver = Driver::find($data['driver_id']);
         $keepingCurrentDriver = $this->editingId
@@ -127,7 +127,7 @@ class ScheduleManager extends Component
             return;
         }
 
-        // The keystone rule — block an overlapping vehicle/driver booking.
+        // The keystone rule : block an overlapping vehicle/driver booking.
         $clash = $conflicts->conflicts($data, $this->editingId)->first();
         if ($clash) {
             $who = $clash->vehicle_id == $data['vehicle_id'] ? 'vehicle' : 'driver';
@@ -170,7 +170,7 @@ class ScheduleManager extends Component
         $this->reset(['managingTripsFor']);
     }
 
-    /** Set one trip's live status — feeds the dashboard trip-status board. */
+    /** Set one trip's live status : feeds the dashboard trip-status board. */
     public function updateTripStatus(int $tripId, string $status): void
     {
         abort_unless(in_array($status, ['scheduled', 'on_time', 'delayed', 'completed'], true), 422);

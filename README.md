@@ -1,4 +1,4 @@
-# SRMSS — Smart Route Management and Scheduling System
+# SRMSS : Smart Route Management and Scheduling System
 
 A web application for public transport depots that replaces manual, spreadsheet-based route
 planning with a single centralised dashboard. It manages bus routes and stops, vehicles,
@@ -7,13 +7,13 @@ produces operational reports with PDF export.
 
 ## Features
 
-- **Route planning** — routes with ordered stops, start/end points and total distance.
-- **Scheduling** — daily / weekly / monthly timetables with automatic conflict detection.
-- **Fleet & drivers** — vehicle and driver records with search, filtering and validation.
-- **Fuel & maintenance** — per-vehicle logs with a "service due" flag.
-- **Dashboard** — live trip status, fleet utilisation and operational alerts.
-- **Reporting** — trip-completion, route-performance and fuel-trend reports, exportable to PDF.
-- **Role-based access** — admin, supervisor and operator roles.
+- **Route planning** : routes with ordered stops, start/end points and total distance.
+- **Scheduling** : daily / weekly / monthly timetables with automatic conflict detection.
+- **Fleet & drivers** : vehicle and driver records with search, filtering and validation.
+- **Fuel & maintenance** : per-vehicle logs with a "service due" flag.
+- **Dashboard** : live trip status, fleet utilisation and operational alerts.
+- **Reporting** : trip-completion, route-performance and fuel-trend reports, exportable to PDF.
+- **Role-based access** : admin, supervisor and operator roles.
 
 ## Tech stack
 

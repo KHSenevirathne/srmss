@@ -11,7 +11,7 @@ use Illuminate\Support\Carbon;
 use Livewire\Component;
 
 /**
- * Depot dashboard (Phase 5) — the operational overview shown after login.
+ * Depot dashboard (Phase 5) : the operational overview shown after login.
  *
  * Summary cards, a live trip-status board (refreshed by Livewire polling, no
  * full page reload), today's schedule overview, and an alerts panel (licences
@@ -68,7 +68,7 @@ class Dashboard extends Component
             ->groupBy('status')
             ->pluck('total', 'status');
 
-        // Vehicle usage — total trips per vehicle (all-time), including vehicles
+        // Vehicle usage : total trips per vehicle (all-time), including vehicles
         // with none so "least used" can surface an idle bus. Ordered most → least
         // with registration_number as a stable tie-break.
         $vehicleUsage = Vehicle::query()
@@ -84,7 +84,7 @@ class Dashboard extends Component
                 'trips'               => (int) $row->trips,
             ]);
 
-        // Mileage extremes — highest/lowest odometer across the fleet, registration
+        // Mileage extremes : highest/lowest odometer across the fleet, registration
         // as a stable tie-break (mirrors the usage shape: ordered collection, first/last).
         $vehicleMileage = Vehicle::query()
             ->orderByDesc('mileage')

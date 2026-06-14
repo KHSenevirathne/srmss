@@ -7,7 +7,7 @@ use Database\Seeders\RolesAndPermissionsSeeder;
 use Livewire\Livewire;
 
 /*
- * Phase 2 — Drivers module. Mirrors VehiclesPageTest for access control and
+ * Phase 2 : Drivers module. Mirrors VehiclesPageTest for access control and
  * adds CRUD + validation coverage via Livewire::test, per the module recipe
  * (docs/ARCHITECTURE.md §6: access control + create/edit/delete/validation).
  */

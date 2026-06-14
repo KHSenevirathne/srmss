@@ -9,7 +9,7 @@ use Livewire\WithPagination;
 use Livewire\Attributes\Validate;
 
 /**
- * Routes module (Phase 3) — CRUD for bus routes plus ordered-stop management.
+ * Routes module (Phase 3) : CRUD for bus routes plus ordered-stop management.
  *
  * Follows the VehicleManager/DriverManager pattern (list + search + modal form)
  * and adds a second panel for managing a route's stops: add, remove, and reorder

@@ -8,7 +8,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 /**
- * Schedule conflict detection (Phase 4) — the keystone domain rule.
+ * Schedule conflict detection (Phase 4) : the keystone domain rule.
  *
  * Two schedules clash when they share the **same vehicle or the same driver**
  * and their validity **date ranges overlap** AND their **daily time windows

@@ -8,7 +8,7 @@ use Database\Seeders\RolesAndPermissionsSeeder;
 use Livewire\Livewire;
 
 /*
- * Phase 3 — Routes module. Access control (manage-routes), route CRUD with a
+ * Phase 3 : Routes module. Access control (manage-routes), route CRUD with a
  * unique code, and ordered-stop management (add / reorder / remove).
  * RefreshDatabase is applied globally in tests/Pest.php.
  */

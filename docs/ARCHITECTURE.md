@@ -1,6 +1,6 @@
 # Architecture & conventions
 
-This is the working reference for *how the SRMSS code is organised* — the folder structure,
+This is the working reference for *how the SRMSS code is organised* : the folder structure,
 naming rules, and the recipe for adding a module. Keep it accurate; it mirrors the 3-Tier
 diagram in the report. (For *what* to build, see `MODULES.md`; for the schema, `DATA_MODEL.md`.)
 
@@ -10,7 +10,7 @@ The app is a clean 3-tier Laravel application. Each tier lives in specific folde
 
 | Tier | Responsibility | Lives in |
 |---|---|---|
-| **Presentation** | What the user sees. HTML, Tailwind, small Alpine bits. Display only — *no business logic*. | `resources/views/` (Blade + `livewire/` partials), Flux components |
+| **Presentation** | What the user sees. HTML, Tailwind, small Alpine bits. Display only : *no business logic*. | `resources/views/` (Blade + `livewire/` partials), Flux components |
 | **Application / logic** | UI state + actions (Livewire), and reusable domain logic (services). | `app/Livewire/` (one component per screen), `app/Services/` (plain PHP, unit-tested) |
 | **Data** | Tables, rows-as-objects, relationships. No raw SQL elsewhere. | `app/Models/` (Eloquent), `database/migrations/`, MySQL |
 
@@ -33,14 +33,14 @@ database/
   seeders/         RolesAndPermissionsSeeder (RBAC) + DemoDataSeeder (demo records)
 resources/views/
   livewire/        the Blade view for each Livewire component
-  layouts/         app shell (sidebar) — merge into, never overwrite
+  layouts/         app shell (sidebar) : merge into, never overwrite
   components/      shared Blade UI pieces
 routes/
   web.php          one guarded route per screen
 tests/
   Feature/         per-screen tests (Livewire::test / HTTP)
   Unit/            per-service tests
-docs/              this folder — design & process notes
+docs/              this folder : design & process notes
 ```
 
 ## 3. Naming conventions
@@ -59,7 +59,7 @@ docs/              this folder — design & process notes
 Columns: money/decimals use `decimal` casts; dates use `date`/`datetime` casts. The database
 is **utf8mb4 / utf8mb4_unicode_ci** (full Unicode).
 
-## 4. Authorisation (RBAC) — single source of truth
+## 4. Authorisation (RBAC) : single source of truth
 
 Roles and permissions are defined in **`database/seeders/RolesAndPermissionsSeeder.php`** and
 nowhere else. Screens check *permissions*, not roles, so the mapping can change without
@@ -85,19 +85,19 @@ Demo logins (password `password` for all): `admin@srmss.test`, `supervisor@srmss
 
 Full-page Livewire screens render inside the Flux sidebar shell
 (`resources/views/layouts/app.blade.php`). This is set **once** in
-`AppServiceProvider` (`config(['livewire.layout' => 'layouts.app'])`) — so no component needs
+`AppServiceProvider` (`config(['livewire.layout' => 'layouts.app'])`) : so no component needs
 its own layout attribute.
 
-## 6. Recipe — adding a new CRUD module (copy VehicleManager)
+## 6. Recipe : adding a new CRUD module (copy VehicleManager)
 
-1. **Migration** in `database/migrations/` — one table, with `unique()` where the spec says so.
-2. **Model** in `app/Models/` — `$fillable`, `$casts`, typed relationship methods.
-3. **Livewire component** in `app/Livewire/` — copy `VehicleManager`; rename fields + validation.
+1. **Migration** in `database/migrations/` : one table, with `unique()` where the spec says so.
+2. **Model** in `app/Models/` : `$fillable`, `$casts`, typed relationship methods.
+3. **Livewire component** in `app/Livewire/` : copy `VehicleManager`; rename fields + validation.
    Move any non-trivial logic into a **service**, not the component.
-4. **Blade view** in `resources/views/livewire/` — copy `vehicle-manager.blade.php`; wrap
+4. **Blade view** in `resources/views/livewire/` : copy `vehicle-manager.blade.php`; wrap
    destructive buttons in `@can('<permission>')`.
-5. **Route** in `routes/web.php` — inside the `auth`+`verified` group, add
+5. **Route** in `routes/web.php` : inside the `auth`+`verified` group, add
    `->middleware('can:<permission>')`.
-6. **Nav** in `layouts/app/sidebar.blade.php` — add one `@can`-wrapped `<flux:sidebar.item>`.
-7. **Test** in `tests/Feature/` — access control + create/edit/delete/validation.
+6. **Nav** in `layouts/app/sidebar.blade.php` : add one `@can`-wrapped `<flux:sidebar.item>`.
+7. **Test** in `tests/Feature/` : access control + create/edit/delete/validation.
 8. If you added a new permission, register it in `RolesAndPermissionsSeeder` and re-seed.

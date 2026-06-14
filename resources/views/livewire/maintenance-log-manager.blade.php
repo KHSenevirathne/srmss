@@ -52,9 +52,10 @@
                     @forelse ($logs as $log)
                         <tr wire:key="maint-{{ $log->id }}">
                             <td>{{ $log->serviced_at->format('Y-m-d') }}</td>
-                            <td class="td-strong">{{ $log->vehicle?->registration_number ?? '—' }}</td>
+                            <td class="td-strong">{{ $log->vehicle?->registration_number ?? '-' }}</td>
                             <td>
-                                <span class="badge {{ $log->type === 'routine' ? 'badge-blue' : 'badge-amber' }}">{{ $log->type }}</span>
+                                <span
+                                    class="badge {{ $log->type === 'routine' ? 'badge-blue' : 'badge-amber' }}">{{ $log->type }}</span>
                             </td>
                             <td class="max-w-64 truncate" title="{{ $log->description }}">{{ $log->description }}</td>
                             <td class="td-num">{{ number_format($log->cost, 2) }}</td>
@@ -65,23 +66,26 @@
                                         <span class="badge badge-red ml-1">service due</span>
                                     @endif
                                 @else
-                                    —
+                                    :
                                 @endif
                             </td>
                             <td class="td-actions">
                                 <button wire:click="edit({{ $log->id }})" class="link-action">Edit</button>
                                 <button wire:click="delete({{ $log->id }})"
-                                        wire:confirm="Delete this maintenance log?"
-                                        class="link-danger">Delete</button>
+                                    wire:confirm="Delete this maintenance log?" class="link-danger">Delete</button>
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="7" class="empty">No maintenance logs found.</td></tr>
+                        <tr>
+                            <td colspan="7" class="empty">No maintenance logs found.</td>
+                        </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-        @if ($logs->hasPages())<div class="table-foot">{{ $logs->links() }}</div>@endif
+        @if ($logs->hasPages())
+            <div class="table-foot">{{ $logs->links() }}</div>
+        @endif
     </div>
 
     {{-- Create / edit modal --}}
@@ -102,7 +106,9 @@
                                     <option value="{{ $vehicle->id }}">{{ $vehicle->registration_number }}</option>
                                 @endforeach
                             </select>
-                            @error('vehicle_id') <p class="error-text">{{ $message }}</p> @enderror
+                            @error('vehicle_id')
+                                <p class="error-text">{{ $message }}</p>
+                            @enderror
                         </div>
                         <div>
                             <label class="label">Type</label>
@@ -115,23 +121,31 @@
                     <div>
                         <label class="label">Description</label>
                         <input type="text" wire:model="description" class="input">
-                        @error('description') <p class="error-text">{{ $message }}</p> @enderror
+                        @error('description')
+                            <p class="error-text">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div class="form-grid-3">
                         <div>
                             <label class="label">Cost</label>
                             <input type="number" step="0.01" wire:model="cost" class="input">
-                            @error('cost') <p class="error-text">{{ $message }}</p> @enderror
+                            @error('cost')
+                                <p class="error-text">{{ $message }}</p>
+                            @enderror
                         </div>
                         <div>
                             <label class="label">Serviced</label>
                             <input type="date" wire:model="serviced_at" class="input">
-                            @error('serviced_at') <p class="error-text">{{ $message }}</p> @enderror
+                            @error('serviced_at')
+                                <p class="error-text">{{ $message }}</p>
+                            @enderror
                         </div>
                         <div>
                             <label class="label">Next Due</label>
                             <input type="date" wire:model="next_due_at" class="input">
-                            @error('next_due_at') <p class="error-text">{{ $message }}</p> @enderror
+                            @error('next_due_at')
+                                <p class="error-text">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
                 </div>

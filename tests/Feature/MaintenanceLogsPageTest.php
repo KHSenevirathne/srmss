@@ -8,7 +8,7 @@ use Database\Seeders\RolesAndPermissionsSeeder;
 use Livewire\Livewire;
 
 /*
- * Phase 3 — Maintenance logs. Access control (log-fuel), record a service entry,
+ * Phase 3 : Maintenance logs. Access control (log-fuel), record a service entry,
  * the "service due" flag (next_due_at reached/passed), and validation.
  * RefreshDatabase is applied globally in tests/Pest.php.
  */

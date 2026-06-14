@@ -4,7 +4,7 @@ use App\Services\ScheduleConflictService;
 use Illuminate\Support\Carbon;
 
 /*
- * Phase 4 — pure unit tests for the conflict-detection overlap rules. These
+ * Phase 4 : pure unit tests for the conflict-detection overlap rules. These
  * exercise the date/time maths directly, with no database (per docs/MODULES.md:
  * "Write unit tests for this first").
  */

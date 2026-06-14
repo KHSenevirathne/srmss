@@ -1,10 +1,12 @@
 <div class="page">
     <div class="page-header">
         <div class="page-heading">
-            <span class="icon-chip icon-chip-green"><flux:icon.truck /></span>
+            <span class="icon-chip icon-chip-green">
+                <flux:icon.truck />
+            </span>
             <div>
                 <h1 class="page-title">Vehicles</h1>
-                <p class="page-sub">The depot fleet — search, filter by status, and manage records.</p>
+                <p class="page-sub">The depot fleet : search, filter by status, and manage records.</p>
             </div>
         </div>
         @can('manage-fleet')
@@ -60,26 +62,30 @@
                                         default => 'badge-amber',
                                     };
                                 @endphp
-                                <span class="badge {{ $badge }}">{{ str_replace('_', ' ', $vehicle->status) }}</span>
+                                <span
+                                    class="badge {{ $badge }}">{{ str_replace('_', ' ', $vehicle->status) }}</span>
                             </td>
                             <td class="td-actions">
                                 @can('manage-fleet')
                                     <button wire:click="edit({{ $vehicle->id }})" class="link-action">Edit</button>
-                                    <button wire:click="delete({{ $vehicle->id }})"
-                                            wire:confirm="Delete this vehicle?"
-                                            class="link-danger">Delete</button>
+                                    <button wire:click="delete({{ $vehicle->id }})" wire:confirm="Delete this vehicle?"
+                                        class="link-danger">Delete</button>
                                 @else
                                     <span class="text-xs text-zinc-400 dark:text-zinc-500">View only</span>
                                 @endcan
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="6" class="empty">No vehicles yet.</td></tr>
+                        <tr>
+                            <td colspan="6" class="empty">No vehicles yet.</td>
+                        </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-        @if ($vehicles->hasPages())<div class="table-foot">{{ $vehicles->links() }}</div>@endif
+        @if ($vehicles->hasPages())
+            <div class="table-foot">{{ $vehicles->links() }}</div>
+        @endif
     </div>
 
     {{-- Create / edit modal --}}
@@ -94,18 +100,24 @@
                     <div>
                         <label class="label">Registration No</label>
                         <input type="text" wire:model="registration_number" class="input">
-                        @error('registration_number') <p class="error-text">{{ $message }}</p> @enderror
+                        @error('registration_number')
+                            <p class="error-text">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div class="form-grid-2">
                         <div>
                             <label class="label">Brand <span class="text-zinc-400">(optional)</span></label>
                             <input type="text" wire:model="brand" placeholder="e.g. Tata" class="input">
-                            @error('brand') <p class="error-text">{{ $message }}</p> @enderror
+                            @error('brand')
+                                <p class="error-text">{{ $message }}</p>
+                            @enderror
                         </div>
                         <div>
                             <label class="label">Model <span class="text-zinc-400">(optional)</span></label>
                             <input type="text" wire:model="model" placeholder="e.g. Starbus" class="input">
-                            @error('model') <p class="error-text">{{ $message }}</p> @enderror
+                            @error('model')
+                                <p class="error-text">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
                     <div class="form-grid-2">
@@ -126,19 +138,25 @@
                                 <option value="hybrid">Hybrid</option>
                                 <option value="cng">CNG</option>
                             </select>
-                            @error('fuel_type') <p class="error-text">{{ $message }}</p> @enderror
+                            @error('fuel_type')
+                                <p class="error-text">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
                     <div class="form-grid-2">
                         <div>
                             <label class="label">Seating Capacity</label>
                             <input type="number" wire:model="seating_capacity" class="input">
-                            @error('seating_capacity') <p class="error-text">{{ $message }}</p> @enderror
+                            @error('seating_capacity')
+                                <p class="error-text">{{ $message }}</p>
+                            @enderror
                         </div>
                         <div>
                             <label class="label">Mileage (km)</label>
                             <input type="number" wire:model="mileage" class="input">
-                            @error('mileage') <p class="error-text">{{ $message }}</p> @enderror
+                            @error('mileage')
+                                <p class="error-text">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
                     <div>

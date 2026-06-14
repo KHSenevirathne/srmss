@@ -8,7 +8,7 @@ use Livewire\WithPagination;
 use Livewire\Attributes\Validate;
 
 /**
- * Drivers module — full CRUD, mirrors VehicleManager (the reference pattern).
+ * Drivers module : full CRUD, mirrors VehicleManager (the reference pattern).
  *
  * Same shape as the Vehicles screen: list + live search + pagination, a
  * modal-driven create/edit form, #[Validate] rules, and delete-with-confirm.

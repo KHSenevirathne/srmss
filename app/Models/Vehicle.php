@@ -31,7 +31,7 @@ class Vehicle extends Model
         return $this->hasMany(MaintenanceLog::class);
     }
 
-    /** The most recent maintenance record — drives the "service due" flag. */
+    /** The most recent maintenance record : drives the "service due" flag. */
     public function latestMaintenance(): HasOne
     {
         return $this->hasOne(MaintenanceLog::class)->latestOfMany('serviced_at');
