@@ -52,6 +52,12 @@ class FuelLogManager extends Component
         $this->resetPage();
     }
 
+    /** Trips are vehicle-specific : clear a stale trip link when the vehicle changes. */
+    public function updatedVehicleId(): void
+    {
+        $this->trip_id = '';
+    }
+
     public function updatedDateFrom(): void
     {
         $this->resetPage();
@@ -98,6 +104,15 @@ class FuelLogManager extends Component
 
         FuelLog::updateOrCreate(['id' => $this->editingId], $data);
 
+        // Keep the vehicle's recorded mileage in step with the odometer reading
+        // (only ever increases : a backdated/corrected lower reading won't reduce it).
+        if ($data['odometer'] !== null) {
+            $vehicle = Vehicle::find($data['vehicle_id']);
+            if ($vehicle && (int) $data['odometer'] > (int) $vehicle->mileage) {
+                $vehicle->update(['mileage' => (int) $data['odometer']]);
+            }
+        }
+
         $this->showModal = false;
         session()->flash('status', $this->editingId ? 'Fuel log updated.' : 'Fuel log added.');
         $this->reset(['editingId']);
@@ -119,17 +134,22 @@ class FuelLogManager extends Component
             ->latest('logged_at')
             ->paginate(10);
 
-        // Trips for the optional link, labelled by date + route (empty until Phase 4).
-        $trips = Trip::query()
-            ->with('schedule.route')
-            ->latest('trip_date')
-            ->limit(50)
-            ->get();
+        // Optional trip link: only the selected vehicle's trips, newest first, so the
+        // list stays short and relevant instead of every trip in the system.
+        $trips = $this->vehicle_id
+            ? Trip::query()
+                ->with('schedule.route')
+                ->whereHas('schedule', fn ($q) => $q->where('vehicle_id', $this->vehicle_id))
+                ->latest('trip_date')
+                ->limit(50)
+                ->get()
+            : collect();
 
         return view('livewire.fuel-log-manager', [
-            'logs'     => $logs,
-            'vehicles' => Vehicle::orderBy('registration_number')->get(),
-            'trips'    => $trips,
+            'logs'            => $logs,
+            'vehicles'        => Vehicle::orderBy('registration_number')->get(),
+            'trips'           => $trips,
+            'selectedVehicle' => $this->vehicle_id ? Vehicle::find($this->vehicle_id) : null,
         ]);
     }
 }

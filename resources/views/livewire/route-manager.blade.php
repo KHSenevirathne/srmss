@@ -188,8 +188,7 @@
                     </ol>
 
                     @can('manage-routes')
-                        <div class="mt-4"
-                             x-data="stopPicker(@js($stops->whereNotNull('latitude')->whereNotNull('longitude')->map(fn ($s) => ['name' => $s->name, 'seq' => $s->sequence, 'lat' => (float) $s->latitude, 'lng' => (float) $s->longitude])->values()))">
+                        <div class="mt-4" x-data="stopPicker(@js($stops->whereNotNull('latitude')->whereNotNull('longitude')->map(fn($s) => ['name' => $s->name, 'seq' => $s->sequence, 'lat' => (float) $s->latitude, 'lng' => (float) $s->longitude])->values()))">
                             <label class="label">Add a stop</label>
 
                             <div class="mt-1 space-y-2">
@@ -221,18 +220,18 @@
                                 </div>
                             </div>
 
-                            {{-- Picker map — hidden until requested, shown below the fields. --}}
+                            {{-- Picker map : hidden until requested, shown below the fields. --}}
                             <div x-show="showMap" style="display:none" class="mt-3">
                                 <p class="mb-2 text-xs text-zinc-400 dark:text-zinc-500">
                                     Click the map to drop the stop's location; drag the pin to fine-tune.
                                 </p>
                                 <div wire:ignore>
                                     <div x-ref="map"
-                                         class="h-64 w-full rounded-lg border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800">
+                                        class="h-64 w-full rounded-lg border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800">
                                     </div>
                                 </div>
-                                <button type="button" x-show="lat !== ''" style="display:none"
-                                        @click="clearMarker()" class="mt-2 btn-ghost">Clear pin</button>
+                                <button type="button" x-show="lat !== ''" style="display:none" @click="clearMarker()"
+                                    class="mt-2 btn-ghost">Clear pin</button>
                             </div>
                         </div>
                     @endcan
@@ -394,9 +393,9 @@
                 },
             }));
 
-            // Shared Leaflet/OpenStreetMap loader — injects the SDK once, fixes the
+            // Shared Leaflet/OpenStreetMap loader : injects the SDK once, fixes the
             // default marker icon paths, then runs the callback when ready.
-            window.srmssLoadLeaflet = function (cb) {
+            window.srmssLoadLeaflet = function(cb) {
                 const ready = () => {
                     if (!window.__srmssLeafletIcons) {
                         delete L.Icon.Default.prototype._getIconUrl;
@@ -409,7 +408,10 @@
                     }
                     cb();
                 };
-                if (window.L) { ready(); return; }
+                if (window.L) {
+                    ready();
+                    return;
+                }
                 if (!document.getElementById('leaflet-css')) {
                     const link = document.createElement('link');
                     link.id = 'leaflet-css';
@@ -424,7 +426,9 @@
                     s.onload = () => window.dispatchEvent(new CustomEvent('leaflet-ready'));
                     document.head.appendChild(s);
                 }
-                window.addEventListener('leaflet-ready', ready, { once: true });
+                window.addEventListener('leaflet-ready', ready, {
+                    once: true
+                });
             };
 
             // Interactive stop picker: click the map to drop a draggable pin; the
@@ -439,7 +443,7 @@
                 marker: null,
 
                 init() {
-                    // After a successful add the server resets the fields — clear the pin.
+                    // After a successful add the server resets the fields : clear the pin.
                     this.$wire.on('stop-added', () => this.clearMarker());
                 },
 
@@ -468,13 +472,19 @@
                     // Show the route's existing stops for context.
                     const pts = [];
                     this.existingStops.forEach((s) => {
-                        L.circleMarker([s.lat, s.lng], { radius: 5, color: '#4f46e5', fillOpacity: 0.6 })
+                        L.circleMarker([s.lat, s.lng], {
+                                radius: 5,
+                                color: '#4f46e5',
+                                fillOpacity: 0.6
+                            })
                             .addTo(map).bindTooltip(s.seq + '. ' + s.name);
                         pts.push([s.lat, s.lng]);
                     });
 
                     if (pts.length) {
-                        map.fitBounds(pts, { padding: [30, 30] });
+                        map.fitBounds(pts, {
+                            padding: [30, 30]
+                        });
                     } else {
                         map.setView([7.0, 80.0], 8); // Sri Lanka default view
                     }
@@ -484,7 +494,8 @@
                     this.mapInited = true;
 
                     // If coordinates were already typed, drop the pin there.
-                    const plat = parseFloat(this.lat), plng = parseFloat(this.lng);
+                    const plat = parseFloat(this.lat),
+                        plng = parseFloat(this.lng);
                     if (!Number.isNaN(plat) && !Number.isNaN(plng)) {
                         this.place(plat, plng);
                         map.setView([plat, plng], 13);
@@ -495,7 +506,8 @@
 
                 // Move the pin to match values typed into the Lat/Lng boxes.
                 syncMarker() {
-                    const lat = parseFloat(this.lat), lng = parseFloat(this.lng);
+                    const lat = parseFloat(this.lat),
+                        lng = parseFloat(this.lng);
                     if (!this.mapInited || Number.isNaN(lat) || Number.isNaN(lng)) return;
                     this.place(lat, lng);
                     this.map.panTo([lat, lng]);
@@ -507,7 +519,9 @@
                     if (this.marker) {
                         this.marker.setLatLng([this.lat, this.lng]);
                     } else {
-                        this.marker = L.marker([this.lat, this.lng], { draggable: true }).addTo(this.map);
+                        this.marker = L.marker([this.lat, this.lng], {
+                            draggable: true
+                        }).addTo(this.map);
                         this.marker.on('dragend', (e) => {
                             const p = e.target.getLatLng();
                             this.lat = Number(p.lat.toFixed(6));
@@ -517,7 +531,10 @@
                 },
 
                 clearMarker() {
-                    if (this.marker) { this.map.removeLayer(this.marker); this.marker = null; }
+                    if (this.marker) {
+                        this.map.removeLayer(this.marker);
+                        this.marker = null;
+                    }
                     this.lat = '';
                     this.lng = '';
                 },

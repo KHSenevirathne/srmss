@@ -79,11 +79,14 @@ Work through the steps in order : each row is a small, independently checkable b
 
 | # | Step | Expected |
 |---|---|---|
-| 6.1 | Fuel Logs → add (vehicle, litres, cost, date) | Row appears; flash message |
+| 6.1 | Fuel Logs → add (vehicle, litres, cost, date) | Row appears; flash message; the **Fuel** column shows the vehicle's fuel type |
+| 6.1a | In Add Fuel Log, pick a vehicle | The **Fuel Type** box auto-fills (read-only) from that vehicle |
+| 6.1b | Enter an **Odometer** higher than the vehicle's mileage, Save | The vehicle's mileage updates to that odometer (check Vehicles / Dashboard mileage cards). A lower reading leaves mileage unchanged |
 | 6.2 | Filter by vehicle + a date range with no logs | Empty state shown |
-| 6.3 | Add fuel log linked to a **Trip** (optional dropdown) | Saves; trip linkage stored |
-| 6.4 | Maintenance → add with next-due **before** serviced date | Validation error |
-| 6.5 | Add maintenance with next-due in the past | Red **service due** badge on the row |
+| 6.3 | Add fuel log → **Trip** dropdown | Before a vehicle is chosen: "select a vehicle first". After: only that vehicle's trips listed (date · route · status). Link one → saved |
+| 6.4 | Maintenance → **Type = Scheduled service**, set next-due **before** serviced date | Validation error |
+| 6.4a | Maintenance → set **Type = Repair** | The **Next Due** field disappears (a repair is a one-off). Save → row shows **n/a** under Next Due |
+| 6.5 | Add a **Scheduled service** with next-due in the past | Red **service due** badge on the row |
 | 6.6 | Check Dashboard alerts | That vehicle listed under "Vehicles : service due" |
 
 ## 7. Dashboard & reports

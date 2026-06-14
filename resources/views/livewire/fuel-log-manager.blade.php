@@ -43,6 +43,7 @@
                     <tr>
                         <th>Date</th>
                         <th>Vehicle</th>
+                        <th>Fuel</th>
                         <th class="th-num">Litres</th>
                         <th class="th-num">Cost</th>
                         <th class="th-num">Odometer</th>
@@ -54,6 +55,7 @@
                         <tr wire:key="fuel-{{ $log->id }}">
                             <td>{{ $log->logged_at->format('Y-m-d') }}</td>
                             <td class="td-strong">{{ $log->vehicle?->registration_number ?? '-' }}</td>
+                            <td class="capitalize">{{ $log->vehicle?->fuel_type ? str_replace('_', ' ', $log->vehicle->fuel_type) : '-' }}</td>
                             <td class="td-num">{{ number_format($log->liters, 2) }} L</td>
                             <td class="td-num">{{ number_format($log->cost, 2) }}</td>
                             <td class="td-num">
@@ -66,7 +68,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="empty">No fuel logs found.</td>
+                            <td colspan="7" class="empty">No fuel logs found.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -86,17 +88,26 @@
                     <button wire:click="$set('showModal', false)" class="modal-close">✕</button>
                 </div>
                 <div class="modal-body">
-                    <div>
-                        <label class="label">Vehicle</label>
-                        <select wire:model="vehicle_id" class="input">
-                            <option value="">Select a vehicle…</option>
-                            @foreach ($vehicles as $vehicle)
-                                <option value="{{ $vehicle->id }}">{{ $vehicle->registration_number }}</option>
-                            @endforeach
-                        </select>
-                        @error('vehicle_id')
-                            <p class="error-text">{{ $message }}</p>
-                        @enderror
+                    <div class="form-grid-2">
+                        <div>
+                            <label class="label">Vehicle</label>
+                            <select wire:model.live="vehicle_id" class="input">
+                                <option value="">Select a vehicle…</option>
+                                @foreach ($vehicles as $vehicle)
+                                    <option value="{{ $vehicle->id }}">{{ $vehicle->registration_number }}</option>
+                                @endforeach
+                            </select>
+                            @error('vehicle_id')
+                                <p class="error-text">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div>
+                            <label class="label">Fuel Type</label>
+                            <input type="text" disabled
+                                class="input bg-zinc-100 capitalize text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400"
+                                value="{{ $selectedVehicle?->fuel_type ? str_replace('_', ' ', $selectedVehicle->fuel_type) : '-' }}">
+                            <p class="mt-1 text-xs text-zinc-400">Auto-filled from the vehicle.</p>
+                        </div>
                     </div>
                     <div class="form-grid-2">
                         <div>
@@ -133,15 +144,26 @@
                     <div>
                         <label class="label">Trip <span
                                 class="font-normal text-zinc-400 dark:text-zinc-500">(optional)</span></label>
-                        <select wire:model="trip_id" class="input">
-                            <option value="">- none -</option>
-                            @foreach ($trips as $trip)
-                                <option value="{{ $trip->id }}">
-                                    {{ $trip->trip_date?->format('Y-m-d') }} ·
-                                    {{ $trip->schedule?->route?->code ?? 'route' }}
-                                </option>
-                            @endforeach
-                        </select>
+                        @if (! $vehicle_id)
+                            <p class="rounded-lg bg-zinc-50 px-3 py-2 text-sm text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500">
+                                Select a vehicle first to link one of its trips.
+                            </p>
+                        @elseif ($trips->isEmpty())
+                            <p class="rounded-lg bg-zinc-50 px-3 py-2 text-sm text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500">
+                                No trips recorded for this vehicle.
+                            </p>
+                        @else
+                            <select wire:model="trip_id" class="input">
+                                <option value="">- none -</option>
+                                @foreach ($trips as $trip)
+                                    <option value="{{ $trip->id }}">
+                                        {{ $trip->trip_date?->format('Y-m-d') }} ·
+                                        {{ $trip->schedule?->route?->code ?? 'route' }}
+                                        ({{ str_replace('_', ' ', $trip->status) }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        @endif
                         @error('trip_id')
                             <p class="error-text">{{ $message }}</p>
                         @enderror

@@ -50,6 +50,14 @@ class MaintenanceLogManager extends Component
         $this->resetPage();
     }
 
+    /** "Next due" only applies to scheduled service : clear it when switching to a repair. */
+    public function updatedType(): void
+    {
+        if ($this->type === 'corrective') {
+            $this->next_due_at = '';
+        }
+    }
+
     public function updatedDateFrom(): void
     {
         $this->resetPage();
@@ -94,6 +102,11 @@ class MaintenanceLogManager extends Component
 
         // Store an empty next-due as null rather than an empty string.
         $data['next_due_at'] = $data['next_due_at'] ?: null;
+
+        // A repair (corrective) is a one-off : it never carries a next-due date.
+        if ($data['type'] === 'corrective') {
+            $data['next_due_at'] = null;
+        }
 
         MaintenanceLog::updateOrCreate(['id' => $this->editingId], $data);
 

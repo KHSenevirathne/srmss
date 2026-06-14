@@ -64,6 +64,37 @@ test('a maintenance log can be recorded', function () {
     expect(MaintenanceLog::where('vehicle_id', $this->vehicle->id)->count())->toBe(1);
 });
 
+test('a repair (corrective) is saved without a next-due date', function () {
+    $operator = User::factory()->create()->assignRole('operator');
+
+    Livewire::actingAs($operator)
+        ->test(MaintenanceLogManager::class)
+        ->call('create')
+        ->set('vehicle_id', (string) $this->vehicle->id)
+        ->set('type', 'corrective')
+        ->set('description', 'Brake pad replacement')
+        ->set('cost', 15000)
+        ->set('serviced_at', now()->toDateString())
+        ->set('next_due_at', now()->addMonths(3)->toDateString()) // should be ignored for a repair
+        ->call('save')
+        ->assertHasNoErrors();
+
+    $log = MaintenanceLog::where('vehicle_id', $this->vehicle->id)->first();
+    expect($log->type)->toBe('corrective');
+    expect($log->next_due_at)->toBeNull();
+});
+
+test('switching type to repair clears the next-due field', function () {
+    $operator = User::factory()->create()->assignRole('operator');
+
+    Livewire::actingAs($operator)
+        ->test(MaintenanceLogManager::class)
+        ->call('create')
+        ->set('next_due_at', now()->addMonths(2)->toDateString())
+        ->set('type', 'corrective')
+        ->assertSet('next_due_at', '');
+});
+
 test('next due cannot be before the service date', function () {
     $operator = User::factory()->create()->assignRole('operator');
 

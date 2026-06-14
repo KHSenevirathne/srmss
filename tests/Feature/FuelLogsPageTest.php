@@ -63,6 +63,70 @@ test('a fuel log can be recorded', function () {
     expect(FuelLog::where('vehicle_id', $this->vehicle->id)->count())->toBe(1);
 });
 
+test('logging a higher odometer updates the vehicle mileage', function () {
+    $operator = User::factory()->create()->assignRole('operator');
+
+    Livewire::actingAs($operator)
+        ->test(FuelLogManager::class)
+        ->call('create')
+        ->set('vehicle_id', (string) $this->vehicle->id)
+        ->set('liters', 100)
+        ->set('cost', 40000)
+        ->set('odometer', 182500)
+        ->set('logged_at', now()->toDateString())
+        ->call('save')
+        ->assertHasNoErrors();
+
+    expect($this->vehicle->fresh()->mileage)->toBe(182500); // was 1000
+});
+
+test('a lower odometer reading does not reduce the vehicle mileage', function () {
+    $operator = User::factory()->create()->assignRole('operator');
+
+    Livewire::actingAs($operator)
+        ->test(FuelLogManager::class)
+        ->call('create')
+        ->set('vehicle_id', (string) $this->vehicle->id)
+        ->set('liters', 100)
+        ->set('cost', 40000)
+        ->set('odometer', 500) // below the current 1000
+        ->set('logged_at', now()->toDateString())
+        ->call('save')
+        ->assertHasNoErrors();
+
+    expect($this->vehicle->fresh()->mileage)->toBe(1000); // unchanged
+});
+
+test('only the selected vehicle\'s trips are offered for linking', function () {
+    $operator = User::factory()->create()->assignRole('operator');
+    $route = App\Models\BusRoute::create(['code' => 'R-1', 'name' => 'One', 'start_point' => 'A', 'end_point' => 'B']);
+    $driver = App\Models\Driver::create(['name' => 'D', 'license_number' => 'DL-1', 'license_expiry' => now()->addYear()]);
+
+    $mine = App\Models\Schedule::create([
+        'bus_route_id' => $route->id, 'vehicle_id' => $this->vehicle->id, 'driver_id' => $driver->id,
+        'frequency' => 'daily', 'departure_time' => '08:00', 'arrival_time' => '10:00',
+        'valid_from' => now()->toDateString(), 'status' => 'active',
+    ]);
+    $myTrip = $mine->trips()->create(['trip_date' => now()->toDateString(), 'status' => 'on_time']);
+
+    $other = Vehicle::create(['registration_number' => 'NB-9', 'type' => 'bus', 'seating_capacity' => 50, 'mileage' => 0]);
+    $theirs = App\Models\Schedule::create([
+        'bus_route_id' => $route->id, 'vehicle_id' => $other->id, 'driver_id' => $driver->id,
+        'frequency' => 'daily', 'departure_time' => '12:00', 'arrival_time' => '14:00',
+        'valid_from' => now()->toDateString(), 'status' => 'active',
+    ]);
+    $theirs->trips()->create(['trip_date' => now()->toDateString(), 'status' => 'on_time']);
+
+    $trips = Livewire::actingAs($operator)
+        ->test(FuelLogManager::class)
+        ->call('create')
+        ->set('vehicle_id', (string) $this->vehicle->id)
+        ->viewData('trips');
+
+    expect($trips)->toHaveCount(1);
+    expect($trips->first()->id)->toBe($myTrip->id);
+});
+
 test('required fields are validated', function () {
     $operator = User::factory()->create()->assignRole('operator');
 

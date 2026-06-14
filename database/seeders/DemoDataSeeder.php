@@ -99,7 +99,10 @@ class DemoDataSeeder extends Seeder
         // Maintenance: one routine record with a future due date, and one that is
         // already overdue so the "service due" flag is visible in the demo.
         MaintenanceLog::create(['vehicle_id' => $vehicles[0]->id, 'type' => 'routine', 'description' => 'Oil & filter change', 'cost' => 8500, 'serviced_at' => now()->subMonths(2), 'next_due_at' => now()->addMonth()]);
-        MaintenanceLog::create(['vehicle_id' => $vehicles[2]->id, 'type' => 'corrective', 'description' => 'Brake pad replacement', 'cost' => 15000, 'serviced_at' => now()->subMonths(4), 'next_due_at' => now()->subWeek()]);
+        // A one-off repair (no next-due) plus an overdue scheduled service so the
+        // "service due" flag still has something to show.
+        MaintenanceLog::create(['vehicle_id' => $vehicles[2]->id, 'type' => 'corrective', 'description' => 'Brake pad replacement', 'cost' => 15000, 'serviced_at' => now()->subMonths(4), 'next_due_at' => null]);
+        MaintenanceLog::create(['vehicle_id' => $vehicles[2]->id, 'type' => 'routine', 'description' => 'Periodic full service', 'cost' => 12000, 'serviced_at' => now()->subMonths(1), 'next_due_at' => now()->subWeek()]);
     }
 
     /** Create (or update) a demo user and give them exactly one role. */

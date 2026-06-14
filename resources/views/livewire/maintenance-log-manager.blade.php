@@ -55,18 +55,20 @@
                             <td class="td-strong">{{ $log->vehicle?->registration_number ?? '-' }}</td>
                             <td>
                                 <span
-                                    class="badge {{ $log->type === 'routine' ? 'badge-blue' : 'badge-amber' }}">{{ $log->type }}</span>
+                                    class="badge {{ $log->type === 'routine' ? 'badge-blue' : 'badge-amber' }}">{{ $log->type === 'routine' ? 'Scheduled service' : 'Repair' }}</span>
                             </td>
                             <td class="max-w-64 truncate" title="{{ $log->description }}">{{ $log->description }}</td>
                             <td class="td-num">{{ number_format($log->cost, 2) }}</td>
                             <td>
-                                @if ($log->next_due_at)
+                                @if ($log->type === 'corrective')
+                                    <span class="text-zinc-400 dark:text-zinc-500">n/a</span>
+                                @elseif ($log->next_due_at)
                                     {{ $log->next_due_at->format('Y-m-d') }}
                                     @if ($log->serviceDue())
                                         <span class="badge badge-red ml-1">service due</span>
                                     @endif
                                 @else
-                                    :
+                                    -
                                 @endif
                             </td>
                             <td class="td-actions">
@@ -112,9 +114,9 @@
                         </div>
                         <div>
                             <label class="label">Type</label>
-                            <select wire:model="type" class="input">
-                                <option value="routine">Routine</option>
-                                <option value="corrective">Corrective</option>
+                            <select wire:model.live="type" class="input">
+                                <option value="routine">Scheduled service</option>
+                                <option value="corrective">Repair</option>
                             </select>
                         </div>
                     </div>
@@ -140,13 +142,19 @@
                                 <p class="error-text">{{ $message }}</p>
                             @enderror
                         </div>
-                        <div>
-                            <label class="label">Next Due</label>
-                            <input type="date" wire:model="next_due_at" class="input">
-                            @error('next_due_at')
-                                <p class="error-text">{{ $message }}</p>
-                            @enderror
-                        </div>
+                        @if ($type === 'routine')
+                            <div>
+                                <label class="label">Next Due</label>
+                                <input type="date" wire:model="next_due_at" class="input">
+                                @error('next_due_at')
+                                    <p class="error-text">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        @else
+                            <div class="flex items-end">
+                                <p class="pb-2 text-xs text-zinc-400 dark:text-zinc-500">No next-due date : a repair is a one-off.</p>
+                            </div>
+                        @endif
                     </div>
                 </div>
                 <div class="modal-foot">
