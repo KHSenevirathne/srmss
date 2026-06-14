@@ -247,4 +247,146 @@
             </div>
         </div>
     </div>
+
+    {{-- Network map : large map on the left, route tabs on the right. Selecting a
+         route plots its stops + connecting line. Leaflet/OpenStreetMap, no key. --}}
+    <div class="panel overflow-hidden">
+        <div class="panel-head">
+            <h2 class="panel-title"><flux:icon.map />Network Map</h2>
+            <span class="pill pill-zinc">{{ count($mapRoutes) }} {{ \Illuminate\Support\Str::plural('route', count($mapRoutes)) }}</span>
+        </div>
+
+        @if (count($mapRoutes) === 0)
+            <div class="panel-body">
+                <p class="callout-muted">No routes have geo-located stops yet. Add latitude/longitude to a route's
+                    stops to plot it here.</p>
+            </div>
+        @else
+            <div wire:ignore x-data="networkMap(@js($mapRoutes))" class="grid lg:grid-cols-3">
+                {{-- Map canvas --}}
+                <div class="lg:col-span-2">
+                    <div x-ref="map" class="h-96 w-full bg-zinc-100 lg:h-128 dark:bg-zinc-800"></div>
+                </div>
+
+                {{-- Route tabs --}}
+                <div class="border-t border-zinc-200 lg:border-t-0 lg:border-l dark:border-zinc-800">
+                    <div class="border-b border-zinc-200 px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:border-zinc-800 dark:text-zinc-500">
+                        Current Routes
+                    </div>
+                    <div class="max-h-96 divide-y divide-zinc-100 overflow-y-auto lg:max-h-116 dark:divide-zinc-800">
+                        <template x-for="route in routes" :key="route.id">
+                            <button type="button" @click="select(route.id)"
+                                class="flex w-full items-start gap-3 border-l-2 px-4 py-3 text-left transition-colors"
+                                :class="activeId === route.id
+                                    ? 'border-l-indigo-500 bg-indigo-50/70 dark:bg-indigo-500/10'
+                                    : 'border-l-transparent hover:bg-zinc-50 dark:hover:bg-zinc-800/50'">
+                                <flux:icon.map-pin class="mt-0.5 size-4 shrink-0 text-zinc-400 dark:text-zinc-500" />
+                                <span class="min-w-0 flex-1">
+                                    <span class="flex items-center justify-between gap-2">
+                                        <span class="font-mono text-xs font-semibold text-zinc-900 dark:text-zinc-100"
+                                            x-text="route.code"></span>
+                                        <span class="font-mono text-[10px] tabular-nums text-zinc-400 dark:text-zinc-500"
+                                            x-text="route.stops.length + ' stops'"></span>
+                                    </span>
+                                    <span class="mt-0.5 block truncate text-sm text-zinc-600 dark:text-zinc-300">
+                                        <span x-text="route.start"></span> → <span x-text="route.end"></span>
+                                    </span>
+                                </span>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        @endif
+    </div>
 </div>
+
+@script
+    <script>
+        // Plots a selected route's stops + connecting line on a Leaflet/OpenStreetMap
+        // canvas. Mirrors the route-manager map loader (no API key, no cost); clicking
+        // a route tab redraws the layer without touching the base map.
+        Alpine.data('networkMap', (routes) => ({
+            routes,
+            activeId: routes.length ? routes[0].id : null,
+            map: null,
+            layer: null,
+
+            init() {
+                if (this.routes.length) this.loadLeaflet();
+            },
+
+            select(id) {
+                this.activeId = id;
+                this.draw();
+            },
+
+            loadLeaflet() {
+                if (window.L) {
+                    this.initMap();
+                    return;
+                }
+                if (!document.getElementById('leaflet-css')) {
+                    const link = document.createElement('link');
+                    link.id = 'leaflet-css';
+                    link.rel = 'stylesheet';
+                    link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+                    document.head.appendChild(link);
+                }
+                if (!document.getElementById('leaflet-sdk')) {
+                    const s = document.createElement('script');
+                    s.id = 'leaflet-sdk';
+                    s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+                    s.onload = () => window.dispatchEvent(new CustomEvent('leaflet-ready'));
+                    document.head.appendChild(s);
+                }
+                window.addEventListener('leaflet-ready', () => this.initMap(), {
+                    once: true
+                });
+            },
+
+            initMap() {
+                if (!this.$refs.map || !window.L || this.map) return;
+                delete L.Icon.Default.prototype._getIconUrl;
+                L.Icon.Default.mergeOptions({
+                    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+                    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+                    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+                });
+                this.map = L.map(this.$refs.map);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '&copy; OpenStreetMap contributors',
+                }).addTo(this.map);
+                this.layer = L.layerGroup().addTo(this.map);
+                this.draw();
+                setTimeout(() => this.map.invalidateSize(), 200);
+            },
+
+            draw() {
+                if (!this.map || !this.layer) return;
+                this.layer.clearLayers();
+                const route = this.routes.find((r) => r.id === this.activeId);
+                if (!route || !route.stops.length) {
+                    this.map.setView([7.8731, 80.7718], 7); // Sri Lanka fallback
+                    return;
+                }
+                const points = [];
+                route.stops.forEach((stop) => {
+                    const latlng = [stop.lat, stop.lng];
+                    L.marker(latlng).addTo(this.layer).bindPopup(stop.seq + '. ' + stop.name);
+                    points.push(latlng);
+                });
+                if (points.length > 1) {
+                    L.polyline(points, {
+                        color: '#4f46e5',
+                        weight: 3
+                    }).addTo(this.layer);
+                }
+                this.map.fitBounds(points, {
+                    padding: [40, 40]
+                });
+            },
+        }));
+    </script>
+@endscript

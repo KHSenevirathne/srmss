@@ -84,6 +84,29 @@ class Dashboard extends Component
                 'trips'               => (int) $row->trips,
             ]);
 
+        // Network map : every route that has at least one geo-located stop, with
+        // its ordered stops so the dashboard can plot any route on demand. Routes
+        // without coordinates are dropped (nothing to draw).
+        $mapRoutes = BusRoute::query()
+            ->with(['stops' => fn ($q) => $q->whereNotNull('latitude')->whereNotNull('longitude')])
+            ->orderBy('code')
+            ->get()
+            ->map(fn (BusRoute $route) => [
+                'id'    => $route->id,
+                'code'  => $route->code,
+                'name'  => $route->name,
+                'start' => $route->start_point,
+                'end'   => $route->end_point,
+                'stops' => $route->stops->map(fn ($s) => [
+                    'name' => $s->name,
+                    'seq'  => (int) $s->sequence,
+                    'lat'  => (float) $s->latitude,
+                    'lng'  => (float) $s->longitude,
+                ])->values(),
+            ])
+            ->filter(fn ($r) => $r['stops']->isNotEmpty())
+            ->values();
+
         // Mileage extremes : highest/lowest odometer across the fleet, registration
         // as a stable tie-break (mirrors the usage shape: ordered collection, first/last).
         $vehicleMileage = Vehicle::query()
@@ -107,6 +130,7 @@ class Dashboard extends Component
             'leastUsedVehicle'   => $vehicleUsage->last(),
             'highestMileageVehicle' => $vehicleMileage->first(),
             'lowestMileageVehicle'  => $vehicleMileage->last(),
+            'mapRoutes'          => $mapRoutes,
         ]);
     }
 }
