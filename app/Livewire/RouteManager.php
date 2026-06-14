@@ -154,6 +154,9 @@ class RouteManager extends Component
         ]);
 
         $this->reset(['newStopName', 'newStopLat', 'newStopLng']);
+
+        // Tell the map picker to drop its pin (fields were just reset).
+        $this->dispatch('stop-added');
     }
 
     // --- Map ------------------------------------------------------------------

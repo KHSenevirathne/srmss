@@ -134,7 +134,7 @@
                         <label class="label">Trip <span
                                 class="font-normal text-zinc-400 dark:text-zinc-500">(optional)</span></label>
                         <select wire:model="trip_id" class="input">
-                            <option value="">: none :</option>
+                            <option value="">- none -</option>
                             @foreach ($trips as $trip)
                                 <option value="{{ $trip->id }}">
                                     {{ $trip->trip_date?->format('Y-m-d') }} ·

@@ -188,34 +188,52 @@
                     </ol>
 
                     @can('manage-routes')
-                        <div>
+                        <div class="mt-4"
+                             x-data="stopPicker(@js($stops->whereNotNull('latitude')->whereNotNull('longitude')->map(fn ($s) => ['name' => $s->name, 'seq' => $s->sequence, 'lat' => (float) $s->latitude, 'lng' => (float) $s->longitude])->values()))">
                             <label class="label">Add a stop</label>
-                            <div class="flex flex-wrap items-start gap-2">
-                                <div class="min-w-40 flex-1">
-                                    <input type="text" wire:model="newStopName" wire:keydown.enter="addStop"
+
+                            <div class="mt-1 space-y-2">
+                                <div>
+                                    <input type="text" wire:model="newStopName" x-on:keydown.enter.prevent="commit()"
                                         placeholder="Stop name" class="input">
                                     @error('newStopName')
                                         <p class="error-text">{{ $message }}</p>
                                     @enderror
                                 </div>
-                                <div class="w-26">
-                                    <input type="number" step="any" wire:model="newStopLat" placeholder="Lat"
-                                        class="input">
-                                    @error('newStopLat')
-                                        <p class="error-text">{{ $message }}</p>
-                                    @enderror
+                                <div class="flex flex-wrap items-start gap-2">
+                                    <div style="width:7rem">
+                                        <input type="text" x-model="lat" @change="syncMarker()" placeholder="Lat"
+                                            title="Type a value or pick from the map" class="input">
+                                        @error('newStopLat')
+                                            <p class="error-text">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+                                    <div style="width:7rem">
+                                        <input type="text" x-model="lng" @change="syncMarker()" placeholder="Lng"
+                                            title="Type a value or pick from the map" class="input">
+                                        @error('newStopLng')
+                                            <p class="error-text">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+                                    <button type="button" @click="toggleMap()" class="btn-ghost"
+                                        x-text="showMap ? 'Hide map' : 'Select from map'">Select from map</button>
+                                    <button type="button" @click="commit()" class="btn-primary">Add</button>
                                 </div>
-                                <div class="w-26">
-                                    <input type="number" step="any" wire:model="newStopLng" placeholder="Lng"
-                                        class="input">
-                                    @error('newStopLng')
-                                        <p class="error-text">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                                <button wire:click="addStop" class="btn-primary">Add</button>
                             </div>
-                            <p class="mt-2 text-xs text-zinc-400 dark:text-zinc-500">Latitude/longitude are optional : add
-                                them to show the stop on the map.</p>
+
+                            {{-- Picker map — hidden until requested, shown below the fields. --}}
+                            <div x-show="showMap" style="display:none" class="mt-3">
+                                <p class="mb-2 text-xs text-zinc-400 dark:text-zinc-500">
+                                    Click the map to drop the stop's location; drag the pin to fine-tune.
+                                </p>
+                                <div wire:ignore>
+                                    <div x-ref="map"
+                                         class="h-64 w-full rounded-lg border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800">
+                                    </div>
+                                </div>
+                                <button type="button" x-show="lat !== ''" style="display:none"
+                                        @click="clearMarker()" class="mt-2 btn-ghost">Clear pin</button>
+                            </div>
                         </div>
                     @endcan
                 </div>
@@ -373,6 +391,141 @@
                         strokeWeight: 3
                     });
                     map.fitBounds(bounds);
+                },
+            }));
+
+            // Shared Leaflet/OpenStreetMap loader — injects the SDK once, fixes the
+            // default marker icon paths, then runs the callback when ready.
+            window.srmssLoadLeaflet = function (cb) {
+                const ready = () => {
+                    if (!window.__srmssLeafletIcons) {
+                        delete L.Icon.Default.prototype._getIconUrl;
+                        L.Icon.Default.mergeOptions({
+                            iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+                            iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+                            shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+                        });
+                        window.__srmssLeafletIcons = true;
+                    }
+                    cb();
+                };
+                if (window.L) { ready(); return; }
+                if (!document.getElementById('leaflet-css')) {
+                    const link = document.createElement('link');
+                    link.id = 'leaflet-css';
+                    link.rel = 'stylesheet';
+                    link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+                    document.head.appendChild(link);
+                }
+                if (!document.getElementById('leaflet-sdk')) {
+                    const s = document.createElement('script');
+                    s.id = 'leaflet-sdk';
+                    s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+                    s.onload = () => window.dispatchEvent(new CustomEvent('leaflet-ready'));
+                    document.head.appendChild(s);
+                }
+                window.addEventListener('leaflet-ready', ready, { once: true });
+            };
+
+            // Interactive stop picker: click the map to drop a draggable pin; the
+            // chosen lat/lng are pushed into the Livewire fields and saved by addStop.
+            Alpine.data('stopPicker', (existingStops = []) => ({
+                existingStops,
+                lat: '',
+                lng: '',
+                showMap: false,
+                mapInited: false,
+                map: null,
+                marker: null,
+
+                init() {
+                    // After a successful add the server resets the fields — clear the pin.
+                    this.$wire.on('stop-added', () => this.clearMarker());
+                },
+
+                // Reveal/hide the picker; build Leaflet lazily the first time it's shown
+                // (a map built while hidden has no size) and re-measure on reopen.
+                toggleMap() {
+                    this.showMap = !this.showMap;
+                    if (!this.showMap) return;
+                    this.$nextTick(() => {
+                        if (this.mapInited) {
+                            this.map && this.map.invalidateSize();
+                        } else {
+                            srmssLoadLeaflet(() => this.initMap());
+                        }
+                    });
+                },
+
+                initMap() {
+                    if (!this.$refs.map || !window.L || this.mapInited) return;
+                    const map = L.map(this.$refs.map);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 19,
+                        attribution: '&copy; OpenStreetMap contributors',
+                    }).addTo(map);
+
+                    // Show the route's existing stops for context.
+                    const pts = [];
+                    this.existingStops.forEach((s) => {
+                        L.circleMarker([s.lat, s.lng], { radius: 5, color: '#4f46e5', fillOpacity: 0.6 })
+                            .addTo(map).bindTooltip(s.seq + '. ' + s.name);
+                        pts.push([s.lat, s.lng]);
+                    });
+
+                    if (pts.length) {
+                        map.fitBounds(pts, { padding: [30, 30] });
+                    } else {
+                        map.setView([7.0, 80.0], 8); // Sri Lanka default view
+                    }
+
+                    map.on('click', (e) => this.place(e.latlng.lat, e.latlng.lng));
+                    this.map = map;
+                    this.mapInited = true;
+
+                    // If coordinates were already typed, drop the pin there.
+                    const plat = parseFloat(this.lat), plng = parseFloat(this.lng);
+                    if (!Number.isNaN(plat) && !Number.isNaN(plng)) {
+                        this.place(plat, plng);
+                        map.setView([plat, plng], 13);
+                    }
+
+                    setTimeout(() => map.invalidateSize(), 200);
+                },
+
+                // Move the pin to match values typed into the Lat/Lng boxes.
+                syncMarker() {
+                    const lat = parseFloat(this.lat), lng = parseFloat(this.lng);
+                    if (!this.mapInited || Number.isNaN(lat) || Number.isNaN(lng)) return;
+                    this.place(lat, lng);
+                    this.map.panTo([lat, lng]);
+                },
+
+                place(lat, lng) {
+                    this.lat = Number(lat.toFixed(6));
+                    this.lng = Number(lng.toFixed(6));
+                    if (this.marker) {
+                        this.marker.setLatLng([this.lat, this.lng]);
+                    } else {
+                        this.marker = L.marker([this.lat, this.lng], { draggable: true }).addTo(this.map);
+                        this.marker.on('dragend', (e) => {
+                            const p = e.target.getLatLng();
+                            this.lat = Number(p.lat.toFixed(6));
+                            this.lng = Number(p.lng.toFixed(6));
+                        });
+                    }
+                },
+
+                clearMarker() {
+                    if (this.marker) { this.map.removeLayer(this.marker); this.marker = null; }
+                    this.lat = '';
+                    this.lng = '';
+                },
+
+                commit() {
+                    this.$wire.set('newStopLat', this.lat === '' ? '' : String(this.lat), false);
+                    this.$wire.set('newStopLng', this.lng === '' ? '' : String(this.lng), false);
+                    this.$wire.addStop();
                 },
             }));
         </script>
