@@ -1,15 +1,16 @@
-<div class="page" wire:poll.15s>
+<div class="page">
     <div class="page-header">
         <div class="page-heading">
             <span class="icon-chip icon-chip-indigo"><flux:icon.home /></span>
             <div>
                 <h1 class="page-title">Depot Dashboard</h1>
-                <p class="page-sub">Live operational overview · {{ now()->format('D, d M Y H:i') }}</p>
+                <p class="page-sub">Operational overview · updated {{ now()->format('D, d M Y H:i') }}</p>
             </div>
         </div>
-        <span class="flex items-center gap-1.5 text-xs font-medium text-zinc-400 dark:text-zinc-500">
-            <span class="inline-block size-2 animate-pulse rounded-full bg-green-500"></span> auto-refreshing
-        </span>
+        <button wire:click="$refresh" wire:loading.attr="disabled" class="btn-ghost flex items-center gap-1.5">
+            <flux:icon.arrow-path class="size-4" wire:loading.class="animate-spin" wire:target="$refresh" />
+            Refresh
+        </button>
     </div>
 
     {{-- Summary cards --}}
@@ -28,6 +29,35 @@
                 <div class="stat-body">
                     <div class="stat-label">{{ $card['label'] }}</div>
                     <div class="stat-value {{ $card['color'] }}">{{ $card['value'] }}</div>
+                </div>
+            </div>
+        @endforeach
+    </div>
+
+    {{-- Vehicle highlights — busiest/idlest by trips, and odometer extremes --}}
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        @php
+            $tripSub = fn ($v) => $v ? $v['trips'] . ' ' . \Illuminate\Support\Str::plural('trip', $v['trips']) : null;
+            $mileSub = fn ($v) => $v ? number_format($v['mileage']) . ' km' : null;
+            $vehicleStats = [
+                ['label' => 'Most Used Vehicle',  'reg' => $mostUsedVehicle['registration_number'] ?? null,        'sub' => $tripSub($mostUsedVehicle),        'icon' => 'arrow-trending-up',   'chip' => 'icon-chip-green',  'color' => 'text-green-600 dark:text-green-400'],
+                ['label' => 'Least Used Vehicle', 'reg' => $leastUsedVehicle['registration_number'] ?? null,       'sub' => $tripSub($leastUsedVehicle),       'icon' => 'arrow-trending-down', 'chip' => 'icon-chip-amber',  'color' => 'text-amber-600 dark:text-amber-400'],
+                ['label' => 'Highest Mileage',    'reg' => $highestMileageVehicle['registration_number'] ?? null,  'sub' => $mileSub($highestMileageVehicle),  'icon' => 'arrow-up-circle',     'chip' => 'icon-chip-indigo', 'color' => 'text-indigo-600 dark:text-indigo-400'],
+                ['label' => 'Lowest Mileage',     'reg' => $lowestMileageVehicle['registration_number'] ?? null,   'sub' => $mileSub($lowestMileageVehicle),   'icon' => 'arrow-down-circle',   'chip' => 'icon-chip-blue',   'color' => 'text-blue-600 dark:text-blue-400'],
+            ];
+        @endphp
+        @foreach ($vehicleStats as $s)
+            <div class="stat stat-with-icon">
+                <span class="icon-chip {{ $s['chip'] }}"><flux:icon :name="$s['icon']" /></span>
+                <div class="stat-body">
+                    <div class="stat-label">{{ $s['label'] }}</div>
+                    @if ($s['reg'])
+                        <div class="stat-value {{ $s['color'] }}">{{ $s['reg'] }}</div>
+                        <div class="text-xs text-zinc-500 dark:text-zinc-400">{{ $s['sub'] }}</div>
+                    @else
+                        <div class="stat-value text-zinc-400 dark:text-zinc-500">—</div>
+                        <div class="text-xs text-zinc-400 dark:text-zinc-500">No vehicles yet</div>
+                    @endif
                 </div>
             </div>
         @endforeach

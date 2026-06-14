@@ -36,6 +36,15 @@ class VehicleManager extends Component
     #[Validate('required|string|max:30')]
     public string $type = 'bus';
 
+    #[Validate('nullable|string|max:60')]
+    public string $brand = '';
+
+    #[Validate('nullable|string|max:60')]
+    public string $model = '';
+
+    #[Validate('nullable|in:diesel,petrol,electric,hybrid,cng')]
+    public string $fuel_type = 'diesel';
+
     #[Validate('required|integer|min:1|max:120')]
     public int $seating_capacity = 50;
 
@@ -57,8 +66,9 @@ class VehicleManager extends Component
 
     public function create(): void
     {
-        $this->reset(['editingId', 'registration_number', 'type', 'seating_capacity', 'mileage', 'status']);
+        $this->reset(['editingId', 'registration_number', 'type', 'brand', 'model', 'fuel_type', 'seating_capacity', 'mileage', 'status']);
         $this->type = 'bus';
+        $this->fuel_type = 'diesel';
         $this->seating_capacity = 50;
         $this->status = 'available';
         $this->showModal = true;
@@ -70,6 +80,9 @@ class VehicleManager extends Component
         $this->editingId = $vehicle->id;
         $this->registration_number = $vehicle->registration_number;
         $this->type = $vehicle->type;
+        $this->brand = $vehicle->brand ?? '';
+        $this->model = $vehicle->model ?? '';
+        $this->fuel_type = $vehicle->fuel_type ?? 'diesel';
         $this->seating_capacity = $vehicle->seating_capacity;
         $this->mileage = $vehicle->mileage;
         $this->status = $vehicle->status;
@@ -81,10 +94,17 @@ class VehicleManager extends Component
         $data = $this->validate([
             'registration_number' => 'required|string|max:30|unique:vehicles,registration_number,' . $this->editingId,
             'type'                => 'required|string|max:30',
+            'brand'               => 'nullable|string|max:60',
+            'model'               => 'nullable|string|max:60',
+            'fuel_type'           => 'nullable|in:diesel,petrol,electric,hybrid,cng',
             'seating_capacity'    => 'required|integer|min:1|max:120',
             'mileage'             => 'required|integer|min:0',
             'status'              => 'required|in:available,in_service,maintenance',
         ]);
+
+        // Store blank optional text fields as null rather than empty strings.
+        $data['brand'] = $data['brand'] ?: null;
+        $data['model'] = $data['model'] ?: null;
 
         Vehicle::updateOrCreate(['id' => $this->editingId], $data);
 

@@ -41,6 +41,58 @@ test('a user without manage-fleet is forbidden', function () {
         ->assertForbidden();
 });
 
+test('brand, model and fuel type are saved (brand/model optional)', function () {
+    $admin = User::factory()->create()->assignRole('admin');
+
+    Livewire::actingAs($admin)
+        ->test(VehicleManager::class)
+        ->call('create')
+        ->set('registration_number', 'BM-1')
+        ->set('brand', 'Tata')
+        ->set('model', 'Starbus')
+        ->set('fuel_type', 'electric')
+        ->set('seating_capacity', 40)
+        ->set('mileage', 1000)
+        ->call('save')
+        ->assertHasNoErrors();
+
+    $vehicle = Vehicle::where('registration_number', 'BM-1')->first();
+    expect($vehicle->brand)->toBe('Tata');
+    expect($vehicle->model)->toBe('Starbus');
+    expect($vehicle->fuel_type)->toBe('electric');
+
+    // Leaving brand/model blank is allowed and stored as null.
+    Livewire::actingAs($admin)
+        ->test(VehicleManager::class)
+        ->call('create')
+        ->set('registration_number', 'BM-2')
+        ->set('seating_capacity', 30)
+        ->set('mileage', 0)
+        ->call('save')
+        ->assertHasNoErrors();
+
+    $bare = Vehicle::where('registration_number', 'BM-2')->first();
+    expect($bare->brand)->toBeNull();
+    expect($bare->model)->toBeNull();
+    expect($bare->fuel_type)->toBe('diesel'); // dropdown default
+});
+
+test('an invalid fuel type is rejected', function () {
+    $admin = User::factory()->create()->assignRole('admin');
+
+    Livewire::actingAs($admin)
+        ->test(VehicleManager::class)
+        ->call('create')
+        ->set('registration_number', 'BAD-1')
+        ->set('fuel_type', 'plutonium')
+        ->set('seating_capacity', 40)
+        ->set('mileage', 0)
+        ->call('save')
+        ->assertHasErrors(['fuel_type']);
+
+    expect(Vehicle::where('registration_number', 'BAD-1')->exists())->toBeFalse();
+});
+
 test('vehicles can be filtered by status', function () {
     $admin = User::factory()->create()->assignRole('admin');
     Vehicle::create(['registration_number' => 'AV-1', 'type' => 'bus', 'seating_capacity' => 50, 'mileage' => 0, 'status' => 'available']);

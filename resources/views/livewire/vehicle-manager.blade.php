@@ -98,6 +98,18 @@
                     </div>
                     <div class="form-grid-2">
                         <div>
+                            <label class="label">Brand <span class="text-zinc-400">(optional)</span></label>
+                            <input type="text" wire:model="brand" placeholder="e.g. Tata" class="input">
+                            @error('brand') <p class="error-text">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="label">Model <span class="text-zinc-400">(optional)</span></label>
+                            <input type="text" wire:model="model" placeholder="e.g. Starbus" class="input">
+                            @error('model') <p class="error-text">{{ $message }}</p> @enderror
+                        </div>
+                    </div>
+                    <div class="form-grid-2">
+                        <div>
                             <label class="label">Type</label>
                             <select wire:model="type" class="input">
                                 <option value="bus">Bus</option>
@@ -106,12 +118,15 @@
                             </select>
                         </div>
                         <div>
-                            <label class="label">Status</label>
-                            <select wire:model="status" class="input">
-                                <option value="available">Available</option>
-                                <option value="in_service">In service</option>
-                                <option value="maintenance">Maintenance</option>
+                            <label class="label">Fuel Type</label>
+                            <select wire:model="fuel_type" class="input">
+                                <option value="diesel">Diesel</option>
+                                <option value="petrol">Petrol</option>
+                                <option value="electric">Electric</option>
+                                <option value="hybrid">Hybrid</option>
+                                <option value="cng">CNG</option>
                             </select>
+                            @error('fuel_type') <p class="error-text">{{ $message }}</p> @enderror
                         </div>
                     </div>
                     <div class="form-grid-2">
@@ -125,6 +140,14 @@
                             <input type="number" wire:model="mileage" class="input">
                             @error('mileage') <p class="error-text">{{ $message }}</p> @enderror
                         </div>
+                    </div>
+                    <div>
+                        <label class="label">Status</label>
+                        <select wire:model="status" class="input">
+                            <option value="available">Available</option>
+                            <option value="in_service">In service</option>
+                            <option value="maintenance">Maintenance</option>
+                        </select>
                     </div>
                 </div>
                 <div class="modal-foot">

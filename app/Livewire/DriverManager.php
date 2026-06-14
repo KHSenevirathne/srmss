@@ -27,6 +27,12 @@ class DriverManager extends Component
     #[Validate('required|string|max:120')]
     public string $name = '';
 
+    #[Validate('required|string|max:20')]
+    public string $nic = '';
+
+    /** Read-only: auto-generated on save, shown (not editable) when editing. */
+    public ?string $employeeNumber = null;
+
     #[Validate('nullable|string|max:30')]
     public string $phone = '';
 
@@ -61,7 +67,7 @@ class DriverManager extends Component
     public function create(): void
     {
         $this->reset([
-            'editingId', 'name', 'phone', 'email', 'address',
+            'editingId', 'name', 'nic', 'employeeNumber', 'phone', 'email', 'address',
             'license_number', 'license_expiry', 'weekly_hours', 'status',
         ]);
         $this->weekly_hours = 40;
@@ -74,6 +80,8 @@ class DriverManager extends Component
         $driver = Driver::findOrFail($id);
         $this->editingId = $driver->id;
         $this->name = $driver->name;
+        $this->nic = $driver->nic ?? '';
+        $this->employeeNumber = $driver->employee_number;
         $this->phone = $driver->phone ?? '';
         $this->email = $driver->email ?? '';
         $this->address = $driver->address ?? '';
@@ -88,6 +96,7 @@ class DriverManager extends Component
     {
         $data = $this->validate([
             'name'           => 'required|string|max:120',
+            'nic'            => 'required|string|max:20|unique:drivers,nic,' . $this->editingId,
             'phone'          => 'nullable|string|max:30',
             'email'          => 'nullable|email|max:120',
             'address'        => 'nullable|string|max:255',

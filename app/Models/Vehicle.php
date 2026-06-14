@@ -12,7 +12,8 @@ class Vehicle extends Model
     use LogsActivity;
 
     protected $fillable = [
-        'registration_number', 'type', 'seating_capacity', 'mileage', 'status',
+        'registration_number', 'type', 'brand', 'model', 'fuel_type',
+        'seating_capacity', 'mileage', 'status',
     ];
 
     public function schedules(): HasMany

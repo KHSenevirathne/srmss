@@ -40,16 +40,16 @@ class DemoDataSeeder extends Seeder
         }
 
         $vehicles = collect([
-            ['registration_number' => 'NA-1234', 'type' => 'bus', 'seating_capacity' => 54, 'mileage' => 182000],
-            ['registration_number' => 'NB-5678', 'type' => 'coach', 'seating_capacity' => 49, 'mileage' => 96000, 'status' => 'available'],
-            ['registration_number' => 'NC-9012', 'type' => 'minibus', 'seating_capacity' => 28, 'mileage' => 47000, 'status' => 'maintenance'],
+            ['registration_number' => 'NA-1234', 'type' => 'bus', 'brand' => 'Tata', 'model' => 'Starbus', 'fuel_type' => 'diesel', 'seating_capacity' => 54, 'mileage' => 182000],
+            ['registration_number' => 'NB-5678', 'type' => 'coach', 'brand' => 'Ashok Leyland', 'model' => 'Viking', 'fuel_type' => 'diesel', 'seating_capacity' => 49, 'mileage' => 96000, 'status' => 'available'],
+            ['registration_number' => 'NC-9012', 'type' => 'minibus', 'brand' => 'Toyota', 'model' => 'Coaster', 'fuel_type' => 'hybrid', 'seating_capacity' => 28, 'mileage' => 47000, 'status' => 'maintenance'],
         ])->map(fn ($v) => Vehicle::create($v));
 
         $drivers = collect([
-            ['name' => 'Sunil Perera', 'license_number' => 'DL-001', 'license_expiry' => now()->addMonths(8)],
-            ['name' => 'Kamal Silva', 'license_number' => 'DL-002', 'license_expiry' => now()->addDays(20)], // expiring soon
-            ['name' => 'Nimal Fernando', 'license_number' => 'DL-003', 'license_expiry' => now()->addYears(2)],
-        ])->map(fn ($d) => Driver::create($d));
+            ['name' => 'Sunil Perera', 'nic' => '198512345678', 'license_number' => 'DL-001', 'license_expiry' => now()->addMonths(8)],
+            ['name' => 'Kamal Silva', 'nic' => '199087654321', 'license_number' => 'DL-002', 'license_expiry' => now()->addDays(20)], // expiring soon
+            ['name' => 'Nimal Fernando', 'nic' => '197811223344', 'license_number' => 'DL-003', 'license_expiry' => now()->addYears(2)],
+        ])->map(fn ($d) => Driver::create($d)); // employee_number auto-assigned (E-001, …)
 
         $route = BusRoute::create([
             'code' => 'R-138', 'name' => 'Colombo – Galle',

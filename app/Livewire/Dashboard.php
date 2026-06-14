@@ -68,6 +68,33 @@ class Dashboard extends Component
             ->groupBy('status')
             ->pluck('total', 'status');
 
+        // Vehicle usage — total trips per vehicle (all-time), including vehicles
+        // with none so "least used" can surface an idle bus. Ordered most → least
+        // with registration_number as a stable tie-break.
+        $vehicleUsage = Vehicle::query()
+            ->leftJoin('schedules', 'schedules.vehicle_id', '=', 'vehicles.id')
+            ->leftJoin('trips', 'trips.schedule_id', '=', 'schedules.id')
+            ->groupBy('vehicles.id', 'vehicles.registration_number')
+            ->selectRaw('vehicles.registration_number as registration_number, count(trips.id) as trips')
+            ->orderByDesc('trips')
+            ->orderBy('vehicles.registration_number')
+            ->get()
+            ->map(fn ($row) => [
+                'registration_number' => $row->registration_number,
+                'trips'               => (int) $row->trips,
+            ]);
+
+        // Mileage extremes — highest/lowest odometer across the fleet, registration
+        // as a stable tie-break (mirrors the usage shape: ordered collection, first/last).
+        $vehicleMileage = Vehicle::query()
+            ->orderByDesc('mileage')
+            ->orderBy('registration_number')
+            ->get(['registration_number', 'mileage'])
+            ->map(fn ($v) => [
+                'registration_number' => $v->registration_number,
+                'mileage'             => (int) $v->mileage,
+            ]);
+
         return view('livewire.dashboard', [
             'cards'              => $cards,
             'tripCounts'         => $tripCounts,
@@ -76,6 +103,10 @@ class Dashboard extends Component
             'serviceDueVehicles' => $serviceDueVehicles,
             'fleet'              => $fleet,
             'fleetTotal'        => $fleet->sum(),
+            'mostUsedVehicle'    => $vehicleUsage->first(),
+            'leastUsedVehicle'   => $vehicleUsage->last(),
+            'highestMileageVehicle' => $vehicleMileage->first(),
+            'lowestMileageVehicle'  => $vehicleMileage->last(),
         ]);
     }
 }

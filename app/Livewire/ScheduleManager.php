@@ -102,6 +102,31 @@ class ScheduleManager extends Component
             return;
         }
 
+        // Only an available vehicle can be assigned. Keeping the vehicle already on
+        // the schedule being edited is exempt, so editing times isn't trapped if the
+        // vehicle's status changed after it was first scheduled.
+        $vehicle = Vehicle::find($data['vehicle_id']);
+        $keepingCurrentVehicle = $this->editingId
+            && Schedule::whereKey($this->editingId)->value('vehicle_id') == $data['vehicle_id'];
+
+        if ($vehicle && $vehicle->status !== 'available' && ! $keepingCurrentVehicle) {
+            $this->addError('vehicle_id', 'That vehicle is '.str_replace('_', ' ', $vehicle->status)." and can't be assigned. Only available vehicles can be scheduled.");
+
+            return;
+        }
+
+        // Same rule for drivers — only an active driver can be assigned (current
+        // driver on the schedule being edited is exempt).
+        $driver = Driver::find($data['driver_id']);
+        $keepingCurrentDriver = $this->editingId
+            && Schedule::whereKey($this->editingId)->value('driver_id') == $data['driver_id'];
+
+        if ($driver && $driver->status !== 'active' && ! $keepingCurrentDriver) {
+            $this->addError('driver_id', "That driver is inactive and can't be assigned. Only active drivers can be scheduled.");
+
+            return;
+        }
+
         // The keystone rule — block an overlapping vehicle/driver booking.
         $clash = $conflicts->conflicts($data, $this->editingId)->first();
         if ($clash) {
@@ -211,7 +236,12 @@ class ScheduleManager extends Component
             'schedules'     => $schedules,
             'routes'        => BusRoute::orderBy('code')->get(),
             'vehicles'      => Vehicle::orderBy('registration_number')->get(),
-            'drivers'       => Driver::orderBy('name')->get(),
+            // Only active drivers are assignable; keep the currently selected one
+            // visible too so editing a schedule never loses its driver.
+            'drivers'       => Driver::query()
+                ->where(fn ($q) => $q->where('status', 'active')->orWhere('id', $this->driver_id ?: 0))
+                ->orderBy('name')
+                ->get(),
             'tripsSchedule' => $tripsSchedule,
         ]);
     }

@@ -37,6 +37,7 @@
                 <thead>
                     <tr>
                         <th>Name</th>
+                        <th>Emp No</th>
                         <th>Phone</th>
                         <th>Licence No</th>
                         <th>Licence Expiry</th>
@@ -49,6 +50,7 @@
                     @forelse ($drivers as $driver)
                         <tr wire:key="driver-{{ $driver->id }}">
                             <td class="td-strong">{{ $driver->name }}</td>
+                            <td class="tabular-nums">{{ $driver->employee_number ?: '—' }}</td>
                             <td>{{ $driver->phone ?: '—' }}</td>
                             <td>{{ $driver->license_number }}</td>
                             <td>
@@ -73,7 +75,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="7" class="empty">No drivers yet.</td></tr>
+                        <tr><td colspan="8" class="empty">No drivers yet.</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -94,6 +96,19 @@
                         <label class="label">Name</label>
                         <input type="text" wire:model="name" class="input">
                         @error('name') <p class="error-text">{{ $message }}</p> @enderror
+                    </div>
+                    <div class="form-grid-2">
+                        <div>
+                            <label class="label">NIC</label>
+                            <input type="text" wire:model="nic" placeholder="e.g. 199012345678" class="input">
+                            @error('nic') <p class="error-text">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="label">Employee Number</label>
+                            <input type="text" class="input bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400"
+                                   value="{{ $editingId ? $employeeNumber : 'Auto-generated on save' }}" disabled>
+                            <p class="mt-1 text-xs text-zinc-400">Assigned automatically : not editable.</p>
+                        </div>
                     </div>
                     <div class="form-grid-2">
                         <div>

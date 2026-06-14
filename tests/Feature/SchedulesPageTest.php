@@ -102,6 +102,51 @@ test('arrival must be after departure', function () {
     expect(Schedule::count())->toBe(0);
 });
 
+test('a vehicle that is not available cannot be assigned', function () {
+    $admin = User::factory()->create()->assignRole('admin');
+    $this->vehicle->update(['status' => 'maintenance']);
+
+    $component = Livewire::actingAs($admin)->test(ScheduleManager::class)->call('create');
+    foreach (schedulePayload() as $field => $value) {
+        $component->set($field, $value);
+    }
+    $component->call('save')->assertHasErrors(['vehicle_id']);
+
+    expect(Schedule::count())->toBe(0);
+});
+
+test('an inactive driver cannot be assigned', function () {
+    $admin = User::factory()->create()->assignRole('admin');
+    $inactive = Driver::create([
+        'name' => 'Inactive Ivan', 'license_number' => 'DL-INA',
+        'license_expiry' => now()->addYear(), 'status' => 'inactive',
+    ]);
+
+    $component = Livewire::actingAs($admin)->test(ScheduleManager::class)->call('create');
+    foreach (schedulePayload(['driver_id' => (string) $inactive->id]) as $field => $value) {
+        $component->set($field, $value);
+    }
+    $component->call('save')->assertHasErrors(['driver_id']);
+
+    expect(Schedule::count())->toBe(0);
+});
+
+test('editing a schedule keeps its vehicle even if it later went unavailable', function () {
+    $admin = User::factory()->create()->assignRole('admin');
+    $schedule = makeSchedule();
+    $this->vehicle->update(['status' => 'maintenance']);
+
+    // Editing the times must not be trapped by the now-unavailable vehicle.
+    Livewire::actingAs($admin)
+        ->test(ScheduleManager::class)
+        ->call('edit', $schedule->id)
+        ->set('arrival_time', '10:30')
+        ->call('save')
+        ->assertHasNoErrors();
+
+    expect($schedule->fresh()->arrival_time)->toContain('10:30');
+});
+
 // --- Conflict detection -----------------------------------------------------
 
 test('the same vehicle on an overlapping window is blocked', function () {

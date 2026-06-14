@@ -66,6 +66,46 @@ test('the trip board counts today\'s trips by status', function () {
     expect($counts['delayed'])->toBe(1);
 });
 
+test('most and least used vehicles reflect total trip counts', function () {
+    $user = User::factory()->create();
+    $route = BusRoute::create(['code' => 'R-1', 'name' => 'One', 'start_point' => 'A', 'end_point' => 'B']);
+    $driver = Driver::create(['name' => 'D1', 'license_number' => 'DL-1', 'license_expiry' => now()->addYear()]);
+
+    $busy = Vehicle::create(['registration_number' => 'BUSY', 'type' => 'bus', 'seating_capacity' => 50, 'mileage' => 100000]);
+    $quiet = Vehicle::create(['registration_number' => 'QUIET', 'type' => 'bus', 'seating_capacity' => 50, 'mileage' => 50000]);
+    Vehicle::create(['registration_number' => 'IDLE', 'type' => 'bus', 'seating_capacity' => 50, 'mileage' => 200000]); // no trips, highest mileage
+
+    $busySchedule = Schedule::create([
+        'bus_route_id' => $route->id, 'vehicle_id' => $busy->id, 'driver_id' => $driver->id,
+        'frequency' => 'daily', 'departure_time' => '08:00', 'arrival_time' => '10:00',
+        'valid_from' => today()->toDateString(), 'status' => 'active',
+    ]);
+    $busySchedule->trips()->createMany([
+        ['trip_date' => today()->toDateString(), 'status' => 'completed'],
+        ['trip_date' => today()->subDay()->toDateString(), 'status' => 'completed'],
+        ['trip_date' => today()->subDays(2)->toDateString(), 'status' => 'completed'],
+    ]);
+
+    $quietSchedule = Schedule::create([
+        'bus_route_id' => $route->id, 'vehicle_id' => $quiet->id, 'driver_id' => $driver->id,
+        'frequency' => 'daily', 'departure_time' => '12:00', 'arrival_time' => '14:00',
+        'valid_from' => today()->toDateString(), 'status' => 'active',
+    ]);
+    $quietSchedule->trips()->create(['trip_date' => today()->toDateString(), 'status' => 'completed']);
+
+    $component = Livewire::actingAs($user)->test(Dashboard::class);
+
+    expect($component->viewData('mostUsedVehicle')['registration_number'])->toBe('BUSY');
+    expect($component->viewData('mostUsedVehicle')['trips'])->toBe(3);
+    expect($component->viewData('leastUsedVehicle')['registration_number'])->toBe('IDLE');
+    expect($component->viewData('leastUsedVehicle')['trips'])->toBe(0);
+
+    expect($component->viewData('highestMileageVehicle')['registration_number'])->toBe('IDLE');
+    expect($component->viewData('highestMileageVehicle')['mileage'])->toBe(200000);
+    expect($component->viewData('lowestMileageVehicle')['registration_number'])->toBe('QUIET');
+    expect($component->viewData('lowestMileageVehicle')['mileage'])->toBe(50000);
+});
+
 test('alerts list expiring licences and service-due vehicles', function () {
     $user = User::factory()->create();
 

@@ -49,19 +49,48 @@ test('a driver can be created', function () {
         ->test(DriverManager::class)
         ->call('create')
         ->set('name', 'Sunil Perera')
+        ->set('nic', '901234567V')
         ->set('license_number', 'DL-100')
         ->set('license_expiry', now()->addYear()->toDateString())
         ->call('save')
         ->assertHasNoErrors()
         ->assertSet('showModal', false);
 
-    expect(Driver::where('license_number', 'DL-100')->exists())->toBeTrue();
+    $driver = Driver::where('license_number', 'DL-100')->first();
+    expect($driver)->not->toBeNull();
+    expect($driver->nic)->toBe('901234567V');
+    expect($driver->employee_number)->toMatch('/^E-\d{3,}$/'); // auto-generated, short
+});
+
+test('the employee number is auto-generated, short, and sequential', function () {
+    $admin = User::factory()->create()->assignRole('admin');
+
+    $make = function (string $nic, string $licence) use ($admin) {
+        Livewire::actingAs($admin)
+            ->test(DriverManager::class)
+            ->call('create')
+            ->set('name', 'Driver ' . $licence)
+            ->set('nic', $nic)
+            ->set('license_number', $licence)
+            ->set('license_expiry', now()->addYear()->toDateString())
+            ->call('save')
+            ->assertHasNoErrors();
+    };
+
+    $make('900000001V', 'DL-A1');
+    $make('900000002V', 'DL-A2');
+
+    $first = Driver::where('license_number', 'DL-A1')->first()->employee_number;
+    $second = Driver::where('license_number', 'DL-A2')->first()->employee_number;
+
+    expect($first)->toBe('E-001');
+    expect($second)->toBe('E-002'); // increments
 });
 
 test('a driver can be edited', function () {
     $admin = User::factory()->create()->assignRole('admin');
     $driver = Driver::create([
-        'name' => 'Old Name', 'license_number' => 'DL-200',
+        'name' => 'Old Name', 'nic' => '911111111V', 'license_number' => 'DL-200',
         'license_expiry' => now()->addYear()->toDateString(),
     ]);
 
@@ -96,16 +125,17 @@ test('required fields are validated', function () {
         ->test(DriverManager::class)
         ->call('create')
         ->set('name', '')
+        ->set('nic', '')
         ->set('license_number', '')
         ->set('license_expiry', '')
         ->call('save')
-        ->assertHasErrors(['name', 'license_number', 'license_expiry']);
+        ->assertHasErrors(['name', 'nic', 'license_number', 'license_expiry']);
 });
 
-test('a duplicate licence number is rejected', function () {
+test('a duplicate NIC is rejected', function () {
     $admin = User::factory()->create()->assignRole('admin');
     Driver::create([
-        'name' => 'First', 'license_number' => 'DL-DUP',
+        'name' => 'First', 'nic' => '950000000V', 'license_number' => 'DL-N1',
         'license_expiry' => now()->addYear()->toDateString(),
     ]);
 
@@ -113,6 +143,27 @@ test('a duplicate licence number is rejected', function () {
         ->test(DriverManager::class)
         ->call('create')
         ->set('name', 'Second')
+        ->set('nic', '950000000V')
+        ->set('license_number', 'DL-N2')
+        ->set('license_expiry', now()->addYear()->toDateString())
+        ->call('save')
+        ->assertHasErrors(['nic']);
+
+    expect(Driver::where('name', 'Second')->exists())->toBeFalse();
+});
+
+test('a duplicate licence number is rejected', function () {
+    $admin = User::factory()->create()->assignRole('admin');
+    Driver::create([
+        'name' => 'First', 'nic' => '960000000V', 'license_number' => 'DL-DUP',
+        'license_expiry' => now()->addYear()->toDateString(),
+    ]);
+
+    Livewire::actingAs($admin)
+        ->test(DriverManager::class)
+        ->call('create')
+        ->set('name', 'Second')
+        ->set('nic', '961111111V')
         ->set('license_number', 'DL-DUP')
         ->set('license_expiry', now()->addYear()->toDateString())
         ->call('save')

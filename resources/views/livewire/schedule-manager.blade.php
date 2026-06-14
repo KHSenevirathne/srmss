@@ -126,7 +126,9 @@
                             <select wire:model="vehicle_id" class="input">
                                 <option value="">Select…</option>
                                 @foreach ($vehicles as $vehicle)
-                                    <option value="{{ $vehicle->id }}">{{ $vehicle->registration_number }}</option>
+                                    <option value="{{ $vehicle->id }}" @disabled($vehicle->status !== 'available')>
+                                        {{ $vehicle->registration_number }}@unless ($vehicle->status === 'available') · {{ str_replace('_', ' ', $vehicle->status) }}@endunless
+                                    </option>
                                 @endforeach
                             </select>
                             @error('vehicle_id') <p class="error-text">{{ $message }}</p> @enderror
@@ -136,7 +138,7 @@
                             <select wire:model="driver_id" class="input">
                                 <option value="">Select…</option>
                                 @foreach ($drivers as $driver)
-                                    <option value="{{ $driver->id }}">{{ $driver->name }}</option>
+                                    <option value="{{ $driver->id }}">{{ $driver->name }}@if ($driver->employee_number) ({{ $driver->employee_number }})@endif</option>
                                 @endforeach
                             </select>
                             @error('driver_id') <p class="error-text">{{ $message }}</p> @enderror

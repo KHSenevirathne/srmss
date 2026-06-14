@@ -34,11 +34,15 @@ Work through the steps in order — each row is a small, independently checkable
 | # | Step | Expected |
 |---|---|---|
 | 3.1 | Vehicles → add one with an existing reg no | Unique-validation error |
+| 3.1a | Add a vehicle, leave **Brand**/**Model** blank, pick a **Fuel Type** | Saves (brand/model optional, stored null); fuel type persists. Edit it back — fuel type shows the saved value |
 | 3.2 | Set status filter to *Maintenance* | Only NC-9012 listed |
 | 3.3 | Search a partial reg no | List filters live as you type |
 | 3.4 | Drivers → add with licence expiry ~2 weeks away | Row shows amber **expiring soon** badge |
 | 3.5 | Drivers → add with a duplicate licence no | Unique-validation error |
-| 3.6 | Edit a driver's name, Save | Row updates without page reload |
+| 3.5a | Drivers → add, leave **NIC** blank | Validation error — NIC is required |
+| 3.5b | Drivers → add with a valid NIC | Saves; an **Employee Number** (E-001, E-002, …) is auto-assigned and shown in the Emp No column. The form's Employee Number box is read-only |
+| 3.5c | Drivers → add with a duplicate NIC | Unique-validation error |
+| 3.6 | Edit a driver's name, Save | Row updates without page reload; employee number unchanged |
 | 3.7 | Delete a driver | Confirm dialog → row disappears, green flash |
 
 ## 4. Routes & stops
@@ -62,9 +66,11 @@ Work through the steps in order — each row is a small, independently checkable
 | 5.2 | Same again but different vehicle, same **driver** | Conflict banner again (driver clash) |
 | 5.3 | Same vehicle but 09:30–11:30 (back-to-back is fine) | Saves successfully |
 | 5.4 | Set arrival earlier than departure | "Arrival must be after departure" error |
+| 5.4a | Try to assign a vehicle whose status is **Maintenance** (e.g. NC-9012) | Option is greyed in the dropdown; if forced, save is blocked: "…is maintenance and can't be assigned" — only available vehicles schedule |
+| 5.4b | Open the **Driver** dropdown in Add Schedule | Only **active** drivers listed, each shown as "Name (E-00x)". An inactive driver is not listed; assigning one is blocked: "…driver is inactive and can't be assigned" |
 | 5.5 | **Cancel** a schedule, then create an overlapping one | Allowed — cancelled schedules don't conflict |
 | 5.6 | Open **Trips** on a schedule → **Generate trips** | Trips appear for the validity window; pressing again adds none |
-| 5.7 | Set today's trip to **Delayed**, open Dashboard | Within ~15s the Delayed tile increments — no page reload |
+| 5.7 | Set today's trip to **Delayed**, open Dashboard, click **Refresh** | The Delayed tile increments after clicking Refresh (the dashboard no longer auto-polls; refresh is manual) |
 
 ## 6. Fuel & maintenance (works as operator too)
 
@@ -82,6 +88,7 @@ Work through the steps in order — each row is a small, independently checkable
 | # | Step | Expected |
 |---|---|---|
 | 7.1 | Dashboard cards | Counts match the data (routes, available buses, etc.) |
+| 7.1a | Vehicle highlights row (Most/Least Used, Highest/Lowest Mileage) | On seed: Most Used NA-1234 (4 trips), Least Used NC-9012 (0 trips), Highest Mileage NA-1234 (182,000 km), Lowest Mileage NC-9012 (47,000 km) |
 | 7.2 | Reports → set a range covering the seeded data | Trip completion, route table, charts all populate |
 | 7.3 | Set a range in the far past | All zeros / empty states, no errors |
 | 7.4 | **Download PDF** | A PDF downloads; numbers match the screen |
