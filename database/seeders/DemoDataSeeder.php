@@ -103,6 +103,45 @@ class DemoDataSeeder extends Seeder
         // "service due" flag still has something to show.
         MaintenanceLog::create(['vehicle_id' => $vehicles[2]->id, 'type' => 'corrective', 'description' => 'Brake pad replacement', 'cost' => 15000, 'serviced_at' => now()->subMonths(4), 'next_due_at' => null]);
         MaintenanceLog::create(['vehicle_id' => $vehicles[2]->id, 'type' => 'routine', 'description' => 'Periodic full service', 'cost' => 12000, 'serviced_at' => now()->subMonths(1), 'next_due_at' => now()->subWeek()]);
+
+        // --- A second route + service so the reports show real comparisons -------
+        // (two routes, two vehicles, two drivers with trips; recent fuel/maintenance).
+        $route2 = BusRoute::create([
+            'code' => 'R-240', 'name' => 'Colombo – Kandy',
+            'start_point' => 'Colombo Fort', 'end_point' => 'Kandy',
+            'total_distance_km' => 115.0, 'service_type' => 'luxury',
+        ]);
+        foreach ([
+            ['Colombo Fort', 6.9344, 79.8428],
+            ['Kadawatha', 7.0167, 79.9500],
+            ['Nittambuwa', 7.1450, 80.0980],
+            ['Kegalle', 7.2513, 80.3464],
+            ['Kandy', 7.2906, 80.6337],
+        ] as $i => [$name, $lat, $lng]) {
+            RouteStop::create([
+                'bus_route_id' => $route2->id, 'name' => $name, 'sequence' => $i + 1,
+                'latitude' => $lat, 'longitude' => $lng,
+            ]);
+        }
+
+        $schedule2 = Schedule::create([
+            'bus_route_id' => $route2->id,
+            'vehicle_id' => $vehicles[1]->id,   // NB-5678
+            'driver_id' => $drivers[2]->id,     // Nimal Fernando
+            'frequency' => 'daily',
+            'departure_time' => '07:00',
+            'arrival_time' => '10:30',
+            'valid_from' => now()->toDateString(),
+            'status' => 'active',
+        ]);
+        $schedule2->trips()->createMany([
+            ['trip_date' => now()->subDays(3)->toDateString(), 'status' => 'completed'],
+            ['trip_date' => now()->subDays(6)->toDateString(), 'status' => 'on_time'],
+        ]);
+
+        FuelLog::create(['vehicle_id' => $vehicles[1]->id, 'liters' => 90.0, 'cost' => 36000, 'odometer' => 96400, 'logged_at' => now()->subDays(5)]);
+        // A recent service so the maintenance summary + cost pie have data in the default range.
+        MaintenanceLog::create(['vehicle_id' => $vehicles[1]->id, 'type' => 'routine', 'description' => 'Tyre rotation & inspection', 'cost' => 6000, 'serviced_at' => now()->subDays(8), 'next_due_at' => now()->addMonths(3)]);
     }
 
     /** Create (or update) a demo user and give them exactly one role. */
