@@ -1,8 +1,11 @@
 <div class="page">
     <div class="page-header">
-        <div>
-            <h1 class="page-title">Maintenance Logs</h1>
-            <p class="page-sub">Routine and corrective servicing, with overdue vehicles flagged.</p>
+        <div class="page-heading">
+            <span class="icon-chip icon-chip-purple"><flux:icon.wrench-screwdriver /></span>
+            <div>
+                <h1 class="page-title">Maintenance Logs</h1>
+                <p class="page-sub">Routine and corrective servicing, with overdue vehicles flagged.</p>
+            </div>
         </div>
         <button wire:click="create" class="btn-primary">+ Add Maintenance Log</button>
     </div>

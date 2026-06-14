@@ -45,6 +45,11 @@
     ::file-selector-button {
         border-color: var(--color-gray-200, currentColor);
     }
+
+    body {
+        @apply text-zinc-700 antialiased dark:text-zinc-300;
+        text-rendering: optimizeLegibility;
+    }
 }
 
 [data-flux-field]:not(ui-radio, ui-checkbox) {
@@ -74,13 +79,13 @@ select:focus[data-flux-control] {
     /* Page skeleton */
     .page { @apply mx-auto w-full max-w-7xl space-y-6; }
     .page-header { @apply flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between; }
-    .page-title { @apply text-2xl font-semibold tracking-tight text-zinc-900 dark:text-white; }
+    .page-title { @apply text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50; }
     .page-sub { @apply mt-1 text-sm text-zinc-500 dark:text-zinc-400; }
 
     /* Cards */
-    .card { @apply rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-900; }
-    .card-pad { @apply p-5; }
-    .card-title { @apply mb-4 text-base font-semibold text-zinc-900 dark:text-white; }
+    .card { @apply rounded-2xl border border-zinc-200/70 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900; }
+    .card-pad { @apply p-6; }
+    .card-title { @apply mb-4 text-base font-semibold text-zinc-900 dark:text-zinc-100; }
 
     /* Filter bar */
     .filter-bar { @apply flex flex-wrap items-end gap-3; }
@@ -89,7 +94,7 @@ select:focus[data-flux-control] {
     .table-wrap { @apply overflow-x-auto rounded-t-xl; }
     .table { @apply min-w-full divide-y divide-zinc-200 text-sm dark:divide-zinc-700; }
     .table thead { @apply bg-zinc-50 dark:bg-zinc-800/60; }
-    .table th { @apply px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider whitespace-nowrap text-zinc-500 dark:text-zinc-400; }
+    .table th { @apply px-4 py-3 text-left text-xs font-semibold whitespace-nowrap text-zinc-500 dark:text-zinc-400; }
     .table tbody { @apply divide-y divide-zinc-100 dark:divide-zinc-800; }
     .table tbody tr { @apply transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/40; }
     .table td { @apply px-4 py-3 align-middle whitespace-nowrap text-zinc-600 dark:text-zinc-300; }
@@ -101,8 +106,8 @@ select:focus[data-flux-control] {
     .table-foot { @apply border-t border-zinc-200 px-4 py-3 dark:border-zinc-700; }
 
     /* Buttons & row links */
-    .btn-primary { @apply inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white shadow-sm transition-colors hover:bg-indigo-500; }
-    .btn-ghost { @apply inline-flex h-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-zinc-300 px-4 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-800; }
+    .btn-primary { @apply inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-indigo-600 px-4 text-sm font-medium text-white shadow-sm transition-all hover:bg-indigo-500 active:scale-[.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950; }
+    .btn-ghost { @apply inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-zinc-300 px-4 text-sm font-medium text-zinc-700 transition-all hover:bg-zinc-100 active:scale-[.98] dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800; }
     .link-action { @apply cursor-pointer font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300; }
     .link-danger { @apply cursor-pointer font-medium text-red-600 hover:text-red-500 dark:text-red-400 dark:hover:text-red-300; }
     .link-warn { @apply cursor-pointer font-medium text-amber-600 hover:text-amber-500 dark:text-amber-400 dark:hover:text-amber-300; }
@@ -141,11 +146,36 @@ select:focus[data-flux-control] {
     .modal-foot { @apply flex justify-end gap-2 border-t border-zinc-200 px-6 py-4 dark:border-zinc-700; }
 
     /* Stats (dashboard / reports) */
-    .stat { @apply rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-700 dark:bg-zinc-900; }
-    .stat-label { @apply text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400; }
-    .stat-value { @apply mt-2 text-3xl font-semibold tracking-tight; }
-    .tile { @apply rounded-lg p-4 text-center; }
+    .stat { @apply rounded-2xl border border-zinc-200/70 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900; }
+    .stat-label { @apply text-sm font-medium text-zinc-500 dark:text-zinc-400; }
+    .stat-value { @apply mt-1.5 text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50; }
+    .tile { @apply rounded-xl p-4 text-center; }
     .tile-value { @apply text-2xl font-semibold tabular-nums; }
-    .tile-label { @apply mt-0.5 text-[11px] font-medium uppercase tracking-wider; }
-    .section-label { @apply text-[11px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500; }
+    .tile-label { @apply mt-0.5 text-xs font-medium; }
+    .section-label { @apply text-xs font-semibold text-zinc-500 dark:text-zinc-400; }
+
+    /* Icon chips — leading icons for page headers, stat cards and alerts.
+       Colour follows the module; works in light + dark. Pair .icon-chip with a
+       colour modifier, e.g. <span class="icon-chip icon-chip-blue">…</span>. */
+    .icon-chip { @apply inline-flex size-10 shrink-0 items-center justify-center rounded-xl; }
+    .icon-chip svg { @apply size-5; }
+    .icon-chip-sm { @apply size-8 rounded-lg; }
+    .icon-chip-sm svg { @apply size-4; }
+    .icon-chip-indigo { @apply bg-indigo-100 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-400; }
+    .icon-chip-blue   { @apply bg-blue-100 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400; }
+    .icon-chip-green  { @apply bg-green-100 text-green-600 dark:bg-green-500/15 dark:text-green-400; }
+    .icon-chip-amber  { @apply bg-amber-100 text-amber-600 dark:bg-amber-500/15 dark:text-amber-400; }
+    .icon-chip-red    { @apply bg-red-100 text-red-600 dark:bg-red-500/15 dark:text-red-400; }
+    .icon-chip-purple { @apply bg-purple-100 text-purple-600 dark:bg-purple-500/15 dark:text-purple-400; }
+    .icon-chip-zinc   { @apply bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400; }
+
+    /* Page heading with a leading icon chip. */
+    .page-heading { @apply flex items-center gap-3; }
+
+    /* Stat card laid out as icon chip + body. */
+    .stat-with-icon { @apply flex items-center gap-4; }
+    .stat-body { @apply min-w-0; }
+
+    /* Small leading icon inside a card title. */
+    .card-title-icon { @apply size-4 shrink-0 text-zinc-400 dark:text-zinc-500; }
 }

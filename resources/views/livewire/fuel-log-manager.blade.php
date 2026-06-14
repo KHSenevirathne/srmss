@@ -1,8 +1,11 @@
 <div class="page">
     <div class="page-header">
-        <div>
-            <h1 class="page-title">Fuel Logs</h1>
-            <p class="page-sub">Fuel consumption per vehicle, filterable by vehicle and date range.</p>
+        <div class="page-heading">
+            <span class="icon-chip icon-chip-red"><flux:icon.beaker /></span>
+            <div>
+                <h1 class="page-title">Fuel Logs</h1>
+                <p class="page-sub">Fuel consumption per vehicle, filterable by vehicle and date range.</p>
+            </div>
         </div>
         <button wire:click="create" class="btn-primary">+ Add Fuel Log</button>
     </div>

@@ -1,8 +1,11 @@
 <div class="page">
     <div class="page-header">
-        <div>
-            <h1 class="page-title">Routes</h1>
-            <p class="page-sub">Bus routes with ordered stops, distances and map preview.</p>
+        <div class="page-heading">
+            <span class="icon-chip icon-chip-indigo"><flux:icon.map /></span>
+            <div>
+                <h1 class="page-title">Routes</h1>
+                <p class="page-sub">Bus routes with ordered stops, distances and map preview.</p>
+            </div>
         </div>
         @can('manage-routes')
             <button wire:click="create" class="btn-primary">+ Add Route</button>

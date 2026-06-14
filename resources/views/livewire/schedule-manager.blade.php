@@ -1,8 +1,11 @@
 <div class="page">
     <div class="page-header">
-        <div>
-            <h1 class="page-title">Schedules</h1>
-            <p class="page-sub">Timetables with automatic vehicle/driver conflict detection and trip generation.</p>
+        <div class="page-heading">
+            <span class="icon-chip icon-chip-amber"><flux:icon.calendar-days /></span>
+            <div>
+                <h1 class="page-title">Schedules</h1>
+                <p class="page-sub">Timetables with automatic vehicle/driver conflict detection and trip generation.</p>
+            </div>
         </div>
         @can('manage-schedules')
             <button wire:click="create" class="btn-primary">+ Add Schedule</button>

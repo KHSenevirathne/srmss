@@ -1,8 +1,11 @@
 <div class="page">
     <div class="page-header">
-        <div>
-            <h1 class="page-title">Activity Log</h1>
-            <p class="page-sub">Audit trail of critical user activity — read-only and append-only.</p>
+        <div class="page-heading">
+            <span class="icon-chip icon-chip-zinc"><flux:icon.clipboard-document-list /></span>
+            <div>
+                <h1 class="page-title">Activity Log</h1>
+                <p class="page-sub">Audit trail of critical user activity — read-only and append-only.</p>
+            </div>
         </div>
     </div>
 

@@ -1,8 +1,11 @@
 <div class="page">
     <div class="page-header">
-        <div>
-            <h1 class="page-title">Drivers</h1>
-            <p class="page-sub">Driver records, licence validity and availability.</p>
+        <div class="page-heading">
+            <span class="icon-chip icon-chip-blue"><flux:icon.identification /></span>
+            <div>
+                <h1 class="page-title">Drivers</h1>
+                <p class="page-sub">Driver records, licence validity and availability.</p>
+            </div>
         </div>
         @can('manage-fleet')
             <button wire:click="create" class="btn-primary">+ Add Driver</button>

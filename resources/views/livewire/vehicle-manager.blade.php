@@ -1,8 +1,11 @@
 <div class="page">
     <div class="page-header">
-        <div>
-            <h1 class="page-title">Vehicles</h1>
-            <p class="page-sub">The depot fleet — search, filter by status, and manage records.</p>
+        <div class="page-heading">
+            <span class="icon-chip icon-chip-green"><flux:icon.truck /></span>
+            <div>
+                <h1 class="page-title">Vehicles</h1>
+                <p class="page-sub">The depot fleet — search, filter by status, and manage records.</p>
+            </div>
         </div>
         @can('manage-fleet')
             <button wire:click="create" class="btn-primary">+ Add Vehicle</button>

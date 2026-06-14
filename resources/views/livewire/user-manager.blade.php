@@ -1,8 +1,11 @@
 <div class="page">
     <div class="page-header">
-        <div>
-            <h1 class="page-title">Users</h1>
-            <p class="page-sub">Create accounts and assign roles — admin, supervisor or operator.</p>
+        <div class="page-heading">
+            <span class="icon-chip icon-chip-blue"><flux:icon.users /></span>
+            <div>
+                <h1 class="page-title">Users</h1>
+                <p class="page-sub">Create accounts and assign roles — admin, supervisor or operator.</p>
+            </div>
         </div>
         <button wire:click="create" class="btn-primary">+ Add User</button>
     </div>

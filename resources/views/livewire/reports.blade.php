@@ -1,8 +1,11 @@
 <div class="page">
     <div class="page-header">
-        <div>
-            <h1 class="page-title">Reports &amp; Analytics</h1>
-            <p class="page-sub">Operational reports for the selected date range.</p>
+        <div class="page-heading">
+            <span class="icon-chip icon-chip-indigo"><flux:icon.chart-bar /></span>
+            <div>
+                <h1 class="page-title">Reports &amp; Analytics</h1>
+                <p class="page-sub">Operational reports for the selected date range.</p>
+            </div>
         </div>
         <a href="{{ route('reports.pdf', ['from' => $from, 'to' => $to]) }}" class="btn-primary">Download PDF</a>
     </div>
