@@ -104,6 +104,24 @@
         </tr>
     </table>
 
+    <h2>Cost summary</h2>
+    <table class="cards">
+        <tr>
+            <td>
+                <div class="num">{{ number_format($costSummary['fuel'], 2) }}</div>
+                <div class="lbl">Fuel</div>
+            </td>
+            <td>
+                <div class="num">{{ number_format($costSummary['maintenance'], 2) }}</div>
+                <div class="lbl">Maintenance</div>
+            </td>
+            <td>
+                <div class="num">{{ number_format($costSummary['total'], 2) }}</div>
+                <div class="lbl">Total</div>
+            </td>
+        </tr>
+    </table>
+
     <h2>Route performance</h2>
     <table>
         <thead>
@@ -152,6 +170,28 @@
         </tbody>
     </table>
 
+    <h2>Driver utilisation</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Driver</th>
+                <th>Trips</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($driverUtilization as $row)
+                <tr>
+                    <td>{{ $row['driver'] }}</td>
+                    <td>{{ $row['trips'] }}</td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="2">No trips in this range.</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+
     <h2>Fuel consumption trend</h2>
     <table>
         <thead>
@@ -181,8 +221,8 @@
         <thead>
             <tr>
                 <th>Vehicle</th>
-                <th>Routine</th>
-                <th>Corrective</th>
+                <th>Service</th>
+                <th>Repair</th>
                 <th>Total Cost</th>
             </tr>
         </thead>

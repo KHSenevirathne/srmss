@@ -105,6 +105,69 @@ class ReportService
     }
 
     /**
+     * Driver utilisation: trip count per driver within the range.
+     *
+     * @return Collection<int, array{driver:string, trips:int}>
+     */
+    public function driverUtilization(Carbon $from, Carbon $to): Collection
+    {
+        return Trip::query()
+            ->whereBetween('trip_date', [$from->toDateString(), $to->toDateString()])
+            ->join('schedules', 'trips.schedule_id', '=', 'schedules.id')
+            ->join('drivers', 'schedules.driver_id', '=', 'drivers.id')
+            ->selectRaw('drivers.name as driver, count(*) as trips')
+            ->groupBy('drivers.name')
+            ->orderByDesc('trips')
+            ->get()
+            ->map(fn ($row) => [
+                'driver' => $row->driver,
+                'trips'  => (int) $row->trips,
+            ]);
+    }
+
+    /**
+     * Cost summary: total fuel spend + total maintenance spend (and the combined
+     * total) within the range.
+     *
+     * @return array{fuel:float, maintenance:float, total:float}
+     */
+    public function costSummary(Carbon $from, Carbon $to): array
+    {
+        $fuel = (float) FuelLog::query()
+            ->whereBetween('logged_at', [$from->toDateString(), $to->toDateString()])
+            ->sum('cost');
+
+        $maintenance = (float) MaintenanceLog::query()
+            ->whereBetween('serviced_at', [$from->toDateString(), $to->toDateString()])
+            ->sum('cost');
+
+        return [
+            'fuel'        => round($fuel, 2),
+            'maintenance' => round($maintenance, 2),
+            'total'       => round($fuel + $maintenance, 2),
+        ];
+    }
+
+    /**
+     * Maintenance spend split by type (scheduled service vs repair) — for the pie.
+     *
+     * @return array{routine:float, corrective:float}
+     */
+    public function maintenanceCostByType(Carbon $from, Carbon $to): array
+    {
+        $byType = MaintenanceLog::query()
+            ->whereBetween('serviced_at', [$from->toDateString(), $to->toDateString()])
+            ->selectRaw('type, sum(cost) as total')
+            ->groupBy('type')
+            ->pluck('total', 'type');
+
+        return [
+            'routine'    => round((float) ($byType['routine'] ?? 0), 2),
+            'corrective' => round((float) ($byType['corrective'] ?? 0), 2),
+        ];
+    }
+
+    /**
      * Maintenance summary per vehicle: routine/corrective counts + total cost.
      *
      * @return Collection<int, array{vehicle:string, routine:int, corrective:int, cost:float}>
@@ -130,11 +193,14 @@ class ReportService
     public function all(Carbon $from, Carbon $to): array
     {
         return [
-            'tripCompletion'     => $this->tripCompletion($from, $to),
-            'routePerformance'   => $this->routePerformance($from, $to),
-            'fuelTrend'          => $this->fuelTrend($from, $to),
-            'vehicleUtilization' => $this->vehicleUtilization($from, $to),
-            'maintenanceSummary' => $this->maintenanceSummary($from, $to),
+            'tripCompletion'        => $this->tripCompletion($from, $to),
+            'routePerformance'      => $this->routePerformance($from, $to),
+            'fuelTrend'             => $this->fuelTrend($from, $to),
+            'vehicleUtilization'    => $this->vehicleUtilization($from, $to),
+            'driverUtilization'     => $this->driverUtilization($from, $to),
+            'maintenanceSummary'    => $this->maintenanceSummary($from, $to),
+            'maintenanceCostByType' => $this->maintenanceCostByType($from, $to),
+            'costSummary'           => $this->costSummary($from, $to),
         ];
     }
 }

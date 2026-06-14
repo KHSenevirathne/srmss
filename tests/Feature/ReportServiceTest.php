@@ -106,3 +106,38 @@ test('vehicle utilisation counts trips per vehicle', function () {
 
     expect($rows->first())->toMatchArray(['vehicle' => 'V-1', 'trips' => 2]);
 });
+
+test('driver utilisation counts trips per driver', function () {
+    $this->schedule->trips()->createMany([
+        ['trip_date' => '2026-02-10', 'status' => 'completed'],
+        ['trip_date' => '2026-02-11', 'status' => 'on_time'],
+        ['trip_date' => '2026-03-10', 'status' => 'completed'], // out of range
+    ]);
+
+    $rows = $this->service->driverUtilization(Carbon::parse('2026-02-01'), Carbon::parse('2026-02-28'));
+
+    expect($rows)->toHaveCount(1);
+    expect($rows->first())->toMatchArray(['driver' => 'D1', 'trips' => 2]);
+});
+
+test('cost summary totals fuel and maintenance spend in range', function () {
+    FuelLog::create(['vehicle_id' => $this->vehicle->id, 'liters' => 100, 'cost' => 1200, 'logged_at' => '2026-02-05']);
+    FuelLog::create(['vehicle_id' => $this->vehicle->id, 'liters' => 50, 'cost' => 800, 'logged_at' => '2026-03-05']); // out of range
+    MaintenanceLog::create(['vehicle_id' => $this->vehicle->id, 'type' => 'routine', 'description' => 'Service', 'cost' => 300, 'serviced_at' => '2026-02-10']);
+
+    $summary = $this->service->costSummary(Carbon::parse('2026-02-01'), Carbon::parse('2026-02-28'));
+
+    expect($summary['fuel'])->toBe(1200.0);
+    expect($summary['maintenance'])->toBe(300.0);
+    expect($summary['total'])->toBe(1500.0);
+});
+
+test('maintenance cost by type splits service vs repair', function () {
+    MaintenanceLog::create(['vehicle_id' => $this->vehicle->id, 'type' => 'routine', 'description' => 'Service', 'cost' => 400, 'serviced_at' => '2026-02-05']);
+    MaintenanceLog::create(['vehicle_id' => $this->vehicle->id, 'type' => 'corrective', 'description' => 'Repair', 'cost' => 150, 'serviced_at' => '2026-02-12']);
+
+    $split = $this->service->maintenanceCostByType(Carbon::parse('2026-02-01'), Carbon::parse('2026-02-28'));
+
+    expect($split['routine'])->toBe(400.0);
+    expect($split['corrective'])->toBe(150.0);
+});

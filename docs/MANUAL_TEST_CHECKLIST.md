@@ -98,9 +98,10 @@ Work through the steps in order : each row is a small, independently checkable b
 |---|---|---|
 | 7.1 | Dashboard cards | Counts match the data (routes, available buses, etc.) |
 | 7.1a | Vehicle highlights row (Most/Least Used, Highest/Lowest Mileage) | On seed: Most Used NA-1234 (4 trips), Least Used NC-9012 (0 trips), Highest Mileage NA-1234 (182,000 km), Lowest Mileage NC-9012 (47,000 km) |
-| 7.2 | Reports → set a range covering the seeded data | Trip completion, route table, charts all populate |
-| 7.3 | Set a range in the far past | All zeros / empty states, no errors |
-| 7.4 | **Download PDF** | A PDF downloads; numbers match the screen |
+| 7.2 | Reports → set a range covering the seeded data | All sections populate: trip completion, **cost summary** (fuel/maintenance/total), **trip-status doughnut**, route table+bar, vehicle bar+table, **driver utilisation** bar+table, **maintenance cost pie** (service vs repair), fuel line+table, maintenance summary |
+| 7.2a | Driver / Vehicle utilisation | Each shows trips-per-driver and trips-per-vehicle (bar chart **and** a table with the exact counts) |
+| 7.3 | Set a range in the far past | Every section shows its "no … in this range" empty state; no errors, no broken charts |
+| 7.4 | **Download PDF** | A PDF downloads; it now includes Cost summary + Driver utilisation tables and the numbers match the screen |
 | 7.5 | As a role-less user (if you create one): `/reports` | 403 |
 
 ## 8. Audit trail / activity log (admin only)

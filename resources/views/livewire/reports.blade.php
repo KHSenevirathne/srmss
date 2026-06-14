@@ -45,7 +45,45 @@
     </div>
 
     <div class="grid gap-6 lg:grid-cols-2">
-        {{-- Route performance --}}
+        {{-- Cost summary --}}
+        <div class="card card-pad">
+            <h2 class="card-title">Cost summary</h2>
+            <div class="grid grid-cols-3 gap-3">
+                @php
+                    $cs = [
+                        ['Fuel', $costSummary['fuel'], 'text-amber-600 dark:text-amber-400'],
+                        ['Maintenance', $costSummary['maintenance'], 'text-purple-600 dark:text-purple-400'],
+                        ['Total', $costSummary['total'], 'text-indigo-600 dark:text-indigo-400'],
+                    ];
+                @endphp
+                @foreach ($cs as [$label, $value, $color])
+                    <div class="tile bg-zinc-50 dark:bg-zinc-800">
+                        <div class="tile-value {{ $color }}">{{ number_format($value, 2) }}</div>
+                        <div class="tile-label text-zinc-500 dark:text-zinc-400">{{ $label }}</div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
+        {{-- Trip-status breakdown (doughnut) --}}
+        <div class="card card-pad">
+            <h2 class="card-title">Trip status breakdown</h2>
+            @if ($tripCompletion['total'] === 0)
+                <p class="text-sm text-zinc-400 dark:text-zinc-500">No trips in this range.</p>
+            @else
+                <div wire:ignore wire:key="status-{{ $from }}-{{ $to }}" class="mx-auto max-w-xs"
+                     x-data="srmssChart('doughnut',
+                        @js(['Completed', 'On time', 'Delayed', 'Scheduled']),
+                        @js([$tripCompletion['completed'], $tripCompletion['on_time'], $tripCompletion['delayed'], $tripCompletion['scheduled']]),
+                        'Trips')">
+                    <canvas x-ref="canvas" class="max-h-64"></canvas>
+                </div>
+            @endif
+        </div>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-2">
+        {{-- Route performance: table + bar chart --}}
         <div class="card">
             <div class="card-pad pb-0"><h2 class="card-title">Route performance</h2></div>
             <div class="table-wrap">
@@ -72,9 +110,15 @@
                     </tbody>
                 </table>
             </div>
+            @if ($routePerformance->isNotEmpty())
+                <div class="card-pad pt-0" wire:ignore wire:key="route-{{ $from }}-{{ $to }}"
+                     x-data="srmssChart('bar', @js($routePerformance->pluck('code')), @js($routePerformance->pluck('trips')), 'Trips')">
+                    <canvas x-ref="canvas" class="max-h-64"></canvas>
+                </div>
+            @endif
         </div>
 
-        {{-- Vehicle utilisation chart --}}
+        {{-- Vehicle utilisation: chart + table --}}
         <div class="card card-pad">
             <h2 class="card-title">Vehicle utilisation</h2>
             @if ($vehicleUtilization->isEmpty())
@@ -82,7 +126,74 @@
             @else
                 <div wire:ignore wire:key="util-{{ $from }}-{{ $to }}"
                      x-data="srmssChart('bar', @js($vehicleUtilization->pluck('vehicle')), @js($vehicleUtilization->pluck('trips')), 'Trips')">
-                    <canvas x-ref="canvas" class="max-h-72"></canvas>
+                    <canvas x-ref="canvas" class="max-h-64"></canvas>
+                </div>
+                <div class="table-wrap mt-4 rounded-lg border border-zinc-100 dark:border-zinc-800">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Vehicle</th>
+                                <th class="th-num">Trips</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($vehicleUtilization as $row)
+                                <tr>
+                                    <td class="td-strong">{{ $row['vehicle'] }}</td>
+                                    <td class="td-num">{{ $row['trips'] }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+        </div>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-2">
+        {{-- Driver utilisation: chart + table --}}
+        <div class="card card-pad">
+            <h2 class="card-title">Driver utilisation</h2>
+            @if ($driverUtilization->isEmpty())
+                <p class="text-sm text-zinc-400 dark:text-zinc-500">No trips in this range.</p>
+            @else
+                <div wire:ignore wire:key="driver-{{ $from }}-{{ $to }}"
+                     x-data="srmssChart('bar', @js($driverUtilization->pluck('driver')), @js($driverUtilization->pluck('trips')), 'Trips')">
+                    <canvas x-ref="canvas" class="max-h-64"></canvas>
+                </div>
+                <div class="table-wrap mt-4 rounded-lg border border-zinc-100 dark:border-zinc-800">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Driver</th>
+                                <th class="th-num">Trips</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($driverUtilization as $row)
+                                <tr>
+                                    <td class="td-strong">{{ $row['driver'] }}</td>
+                                    <td class="td-num">{{ $row['trips'] }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+        </div>
+
+        {{-- Maintenance cost split (pie) --}}
+        <div class="card card-pad">
+            <h2 class="card-title">Maintenance cost — service vs repair</h2>
+            @if (($maintenanceCostByType['routine'] + $maintenanceCostByType['corrective']) == 0)
+                <p class="text-sm text-zinc-400 dark:text-zinc-500">No maintenance in this range.</p>
+            @else
+                <div wire:ignore wire:key="maint-{{ $from }}-{{ $to }}" class="mx-auto max-w-xs"
+                     x-data="srmssChart('pie',
+                        @js(['Scheduled service', 'Repair']),
+                        @js([$maintenanceCostByType['routine'], $maintenanceCostByType['corrective']]),
+                        'Cost')">
+                    <canvas x-ref="canvas" class="max-h-64"></canvas>
                 </div>
             @endif
         </div>
@@ -129,8 +240,8 @@
                 <thead>
                     <tr>
                         <th>Vehicle</th>
-                        <th class="th-num">Routine</th>
-                        <th class="th-num">Corrective</th>
+                        <th class="th-num">Service</th>
+                        <th class="th-num">Repair</th>
                         <th class="th-num">Total Cost</th>
                     </tr>
                 </thead>
@@ -153,6 +264,7 @@
     @script
     <script>
         // Loads Chart.js once (CDN), then renders a chart into the element's canvas.
+        // Supports bar/line (single indigo series) and pie/doughnut (multi-colour + legend).
         Alpine.data('srmssChart', (type, labels, data, label) => ({
             type, labels, data, label,
             chart: null,
@@ -169,6 +281,8 @@
             },
             draw() {
                 if (! this.$refs.canvas || ! window.Chart) return;
+                const isPie = this.type === 'pie' || this.type === 'doughnut';
+                const palette = ['#4f46e5', '#16a34a', '#dc2626', '#d97706', '#0891b2', '#7c3aed', '#db2777', '#65a30d'];
                 this.chart = new Chart(this.$refs.canvas, {
                     type: this.type,
                     data: {
@@ -176,13 +290,16 @@
                         datasets: [{
                             label: this.label,
                             data: this.data,
-                            backgroundColor: 'rgba(79, 70, 229, 0.5)',
-                            borderColor: 'rgb(79, 70, 229)',
-                            borderWidth: 2,
+                            backgroundColor: isPie ? this.labels.map((_, i) => palette[i % palette.length]) : 'rgba(79, 70, 229, 0.5)',
+                            borderColor: isPie ? '#ffffff' : 'rgb(79, 70, 229)',
+                            borderWidth: isPie ? 1 : 2,
                             tension: 0.3,
                         }],
                     },
-                    options: { responsive: true, plugins: { legend: { display: false } } },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { display: isPie, position: 'bottom' } },
+                    },
                 });
             },
         }));
