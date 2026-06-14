@@ -7,7 +7,6 @@
             <div>
                 <h1 class="page-title">Depot Operations</h1>
                 <p class="page-sub flex items-center gap-2">
-                    <span class="pill pill-green"><span class="dot animate-pulse"></span>Live</span>
                     <span class="font-mono tabular-nums">{{ now()->format('D, d M Y · H:i') }}</span>
                 </p>
             </div>
@@ -64,7 +63,7 @@
                     <div class="metric-value mt-1 text-xl">{{ $s['reg'] }}</div>
                     <div class="metric-sub">{{ $s['sub'] }}</div>
                 @else
-                    <div class="metric-value mt-1 text-xl text-zinc-300 dark:text-zinc-600">—</div>
+                    <div class="metric-value mt-1 text-xl text-zinc-300 dark:text-zinc-600">-</div>
                     <div class="metric-sub">No vehicles yet</div>
                 @endif
             </div>
@@ -191,10 +190,10 @@
                                     <span class="flex size-7 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-[11px] font-bold text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
                                         {{ \Illuminate\Support\Str::upper(\Illuminate\Support\Str::substr($schedule->driver?->name ?? '?', 0, 1)) }}
                                     </span>
-                                    <span class="text-zinc-700 dark:text-zinc-200">{{ $schedule->driver?->name ?? '—' }}</span>
+                                    <span class="text-zinc-700 dark:text-zinc-200">{{ $schedule->driver?->name ?? '-' }}</span>
                                 </div>
                             </td>
-                            <td class="font-mono">{{ $schedule->vehicle?->registration_number ?? '—' }}</td>
+                            <td class="font-mono">{{ $schedule->vehicle?->registration_number ?? '-' }}</td>
                             <td class="td-num font-mono">{{ substr($schedule->departure_time, 0, 5) }}–{{ substr($schedule->arrival_time, 0, 5) }}</td>
                             <td>
                                 <span class="pill {{ $pillFor($schedule->status) }}">{{ str_replace('_', ' ', $schedule->status) }}</span>

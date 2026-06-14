@@ -184,7 +184,7 @@
 
         {{-- Maintenance cost split (pie) --}}
         <div class="card card-pad">
-            <h2 class="card-title">Maintenance cost — service vs repair</h2>
+            <h2 class="card-title">Maintenance cost - service vs repair</h2>
             @if (($maintenanceCostByType['routine'] + $maintenanceCostByType['corrective']) == 0)
                 <p class="text-sm text-zinc-400 dark:text-zinc-500">No maintenance in this range.</p>
             @else

@@ -4,7 +4,7 @@
             <span class="icon-chip icon-chip-amber"><flux:icon.list-bullet /></span>
             <div>
                 <h1 class="page-title">Trips</h1>
-                <p class="page-sub">Every scheduled run across the depot — filter and track live status.</p>
+                <p class="page-sub">Every scheduled run across the depot - filter and track live status.</p>
             </div>
         </div>
     </div>

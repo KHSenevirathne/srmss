@@ -11,7 +11,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 
 /**
- * Central trips board — every trip across all schedules in one filterable list.
+ * Central trips board - every trip across all schedules in one filterable list.
  *
  * Viewing is gated by `view-trips` (admin, supervisor and operator), so operators
  * get a read-only window. Changing a trip's live status additionally requires
@@ -79,7 +79,7 @@ class TripManager extends Component
         $this->resetPage();
     }
 
-    /** Update a trip's live status — admin/supervisor only (operators are read-only). */
+    /** Update a trip's live status - admin/supervisor only (operators are read-only). */
     public function updateTripStatus(int $tripId, string $status): void
     {
         abort_unless(auth()->user()->can('manage-schedules'), 403);

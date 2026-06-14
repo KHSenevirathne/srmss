@@ -149,7 +149,7 @@ class ReportService
     }
 
     /**
-     * Maintenance spend split by type (scheduled service vs repair) — for the pie.
+     * Maintenance spend split by type (scheduled service vs repair) - for the pie.
      *
      * @return array{routine:float, corrective:float}
      */
