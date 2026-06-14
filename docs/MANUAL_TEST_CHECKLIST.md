@@ -50,8 +50,9 @@ Work through the steps in order — each row is a small, independently checkable
 | 4.3 | Move a middle stop ↑ then ↓ | Order swaps and swaps back; numbers stay 1..n |
 | 4.4 | Remove a stop | Remaining stops renumber with no gaps |
 | 4.5 | Add a stop with lat/lng out of range (e.g. 999) | Validation error |
-| 4.6 | Click **Map** (no API key configured) | Friendly "add GOOGLE_MAPS_API_KEY" notice — no crash |
-| 4.7 | Delete a test route that has stops | Route and its stops are gone |
+| 4.6 | Click **Map** on R-138 (stops have coords, no API key) | Leaflet/OpenStreetMap renders with numbered markers + a connecting line; no key needed, no crash |
+| 4.7 | Click **Map** on a route whose stops have no coordinates | Friendly "add latitude/longitude" notice instead of a map — no crash |
+| 4.8 | Delete a test route that has stops | Route and its stops are gone |
 
 ## 5. Schedules, conflicts & trips (the core demo)
 
