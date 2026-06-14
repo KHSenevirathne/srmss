@@ -11,10 +11,13 @@ Work through the steps in order — each row is a small, independently checkable
 | 1.1 | Open `/dashboard` while logged out | Redirected to `/login` |
 | 1.2 | Log in as `admin@srmss.test` | Lands on the Depot Dashboard |
 | 1.3 | Log in with a wrong password | Error shown, stays on login |
-| 1.4 | As **operator**, look at the sidebar | Only Dashboard, Reports, Fuel Logs, Maintenance visible |
+| 1.4 | As **operator**, look at the sidebar | Only Dashboard, Reports, Fuel Logs, Maintenance visible — no Operations CRUD, no Administration |
 | 1.5 | As **operator**, open `/users` directly | 403 Forbidden |
 | 1.6 | As **supervisor**, open `/users` directly | 403 Forbidden |
-| 1.7 | Log out via the user menu | Back to login; `/dashboard` redirects again |
+| 1.7 | As **supervisor**, open `/activity-log` directly | 403 Forbidden (audit log is admin-only) |
+| 1.8 | As **operator**, open `/vehicles`, `/routes`, `/schedules` directly | 403 Forbidden on each |
+| 1.9 | As **admin**, look at the sidebar | Administration group (Users + Activity Log) visible in addition to all Operations items |
+| 1.10 | Log out via the user menu | Back to login; `/dashboard` redirects again |
 
 ## 2. User management (admin)
 
@@ -83,9 +86,25 @@ Work through the steps in order — each row is a small, independently checkable
 | 7.4 | **Download PDF** | A PDF downloads; numbers match the screen |
 | 7.5 | As a role-less user (if you create one): `/reports` | 403 |
 
-## 8. Responsive
+## 8. Audit trail / activity log (admin only)
+
+The log is written automatically by an Eloquent trait + auth event listeners — there is no
+"add log" button. These steps confirm actions elsewhere produce entries here.
 
 | # | Step | Expected |
 |---|---|---|
-| 8.1 | Shrink browser to phone width (or DevTools device mode) | Sidebar collapses to hamburger; cards stack; tables scroll horizontally |
-| 8.2 | Open a modal at phone width | Fields stack one per row; modal scrolls, buttons reachable |
+| 8.1 | As **admin**, open **Activity Log** from the Administration group | Table of recent activity loads; newest first |
+| 8.2 | Your recent login appears | A `login` row for your user (grey badge), description "Logged in" |
+| 8.3 | Add/edit/delete any record (e.g. a Vehicle), then reopen Activity Log | `created` (green) / `updated` (blue) / `deleted` (red) rows for that subject, with your name |
+| 8.4 | Check the **Subject** column on a CRUD row | Shows the model + id, e.g. `Vehicle #5`; auth rows show `—` |
+| 8.5 | Filter **Event** = Deleted | Only delete rows remain |
+| 8.6 | Filter **User** = another user | Only that user's activity shown; combine with Event filter |
+| 8.7 | Confirm there is **no** add/edit/delete control on this screen | Read-only by design — append-only audit record |
+| 8.8 | Log out, then log back in, reopen the log | A `logout` then `login` row recorded for the round-trip |
+
+## 9. Responsive
+
+| # | Step | Expected |
+|---|---|---|
+| 9.1 | Shrink browser to phone width (or DevTools device mode) | Sidebar collapses to hamburger; cards stack; tables scroll horizontally |
+| 9.2 | Open a modal at phone width | Fields stack one per row; modal scrolls, buttons reachable |
