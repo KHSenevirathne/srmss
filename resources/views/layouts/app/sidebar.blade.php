@@ -51,6 +51,12 @@
                         {{ __('Schedules') }}
                     </flux:sidebar.item>
                 @endcan
+                @can('view-trips')
+                    <flux:sidebar.item icon="list-bullet" :href="route('trips')"
+                        :current="request()->routeIs('trips')" wire:navigate>
+                        {{ __('Trips') }}
+                    </flux:sidebar.item>
+                @endcan
                 @can('log-fuel')
                     <flux:sidebar.item icon="beaker" :href="route('fuel-logs')"
                         :current="request()->routeIs('fuel-logs')" wire:navigate>

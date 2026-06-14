@@ -28,16 +28,17 @@ class RolesAndPermissionsSeeder extends Seeder
         'manage-users',     // create users, assign roles
         'manage-fleet',     // drivers + vehicles CRUD
         'manage-routes',    // routes + stops CRUD
-        'manage-schedules', // timetables + conflict-checked assignment
+        'manage-schedules', // timetables + conflict-checked assignment + trip status
         'log-fuel',         // fuel + maintenance logging
         'view-reports',     // dashboard + reports (read-only surface)
+        'view-trips',       // the central trips board (read-only for operators)
     ];
 
     /** Which permissions each role holds. admin holds all of them. */
     public const ROLES = [
         'admin' => self::PERMISSIONS,
-        'supervisor' => ['manage-fleet', 'manage-routes', 'manage-schedules', 'log-fuel', 'view-reports'],
-        'operator' => ['log-fuel', 'view-reports'],
+        'supervisor' => ['manage-fleet', 'manage-routes', 'manage-schedules', 'log-fuel', 'view-reports', 'view-trips'],
+        'operator' => ['log-fuel', 'view-reports', 'view-trips'],
     ];
 
     public function run(): void

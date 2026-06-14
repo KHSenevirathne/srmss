@@ -74,6 +74,9 @@ Work through the steps in order : each row is a small, independently checkable b
 | 5.5 | **Cancel** a schedule, then create an overlapping one | Allowed : cancelled schedules don't conflict |
 | 5.6 | Open **Trips** on a schedule → **Generate trips** | Trips appear for the validity window; pressing again adds none |
 | 5.7 | Set today's trip to **Delayed**, open Dashboard, click **Refresh** | The Delayed tile increments after clicking Refresh (the dashboard no longer auto-polls; refresh is manual) |
+| 5.8 | Open **Trips** in the sidebar | Central board lists every trip across all schedules; filter by route/vehicle/driver/status/date range |
+| 5.9 | On Dashboard, click **See all →** on the Today's Trips card | Lands on the Trips page pre-filtered to today (From/To = today) |
+| 5.10 | As **operator**, open **Trips** | Page loads read-only: status shows as a badge, no status dropdown. As admin/supervisor a status dropdown is shown and updates live |
 
 ## 6. Fuel & maintenance (works as operator too)
 

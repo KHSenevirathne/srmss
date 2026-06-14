@@ -16,6 +16,18 @@
         <div class="flash">{{ session('status') }}</div>
     @endif
 
+    {{-- Quick legend: what each role is allowed to do. --}}
+    <div class="card card-pad mb-4 text-sm">
+        <p class="mb-2 flex items-center gap-1.5 font-medium text-zinc-700 dark:text-zinc-200">
+            <flux:icon.information-circle class="size-4" /> What each role can do
+        </p>
+        <ul class="space-y-1.5 text-zinc-500 dark:text-zinc-400">
+            <li><span class="badge badge-blue">Admin</span> Full access : including managing users and the activity log.</li>
+            <li><span class="badge badge-zinc">Supervisor</span> Vehicles, drivers, routes, schedules, fuel &amp; maintenance, reports : everything except managing users.</li>
+            <li><span class="badge badge-zinc">Operator</span> Log fuel &amp; maintenance, and view the dashboard &amp; reports only.</li>
+        </ul>
+    </div>
+
     <div class="filter-bar">
         <div class="w-full sm:w-64">
             <label class="label">Search</label>
@@ -94,7 +106,16 @@
                     <div class="form-grid-2">
                         <div>
                             <label class="label">Password {{ $editingId ? '(blank = keep current)' : '' }}</label>
-                            <input type="password" wire:model="password" class="input">
+                            <div x-data="{ show: false }" class="relative">
+                                <input :type="show ? 'text' : 'password'" wire:model="password"
+                                    class="input" style="padding-right: 2.5rem">
+                                <button type="button" tabindex="-1" @click="show = !show"
+                                    :aria-label="show ? 'Hide password' : 'Show password'"
+                                    class="absolute inset-y-0 right-0 flex items-center px-3 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
+                                    <flux:icon.eye x-show="!show" class="size-4" />
+                                    <flux:icon.eye-slash x-show="show" style="display:none" class="size-4" />
+                                </button>
+                            </div>
                             @error('password')
                                 <p class="error-text">{{ $message }}</p>
                             @enderror

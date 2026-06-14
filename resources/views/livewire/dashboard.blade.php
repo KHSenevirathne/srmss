@@ -124,8 +124,16 @@
     <div class="grid gap-6 lg:grid-cols-3">
         {{-- Live trip-status board --}}
         <div class="card card-pad lg:col-span-2">
-            <h2 class="card-title flex items-center gap-2"><flux:icon.list-bullet class="card-title-icon" />Today's
-                Trips</h2>
+            <div class="mb-3 flex items-center justify-between gap-2">
+                <h2 class="card-title mb-0 flex items-center gap-2"><flux:icon.list-bullet class="card-title-icon" />Today's
+                    Trips</h2>
+                @can('view-trips')
+                    <a href="{{ route('trips', ['dateFrom' => now()->toDateString(), 'dateTo' => now()->toDateString()]) }}"
+                        wire:navigate class="text-sm font-medium text-indigo-600 hover:underline dark:text-indigo-400">
+                        See all →
+                    </a>
+                @endcan
+            </div>
             <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 @php
                     $board = [

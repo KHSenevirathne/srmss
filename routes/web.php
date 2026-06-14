@@ -9,6 +9,7 @@ use App\Livewire\MaintenanceLogManager;
 use App\Livewire\Reports;
 use App\Livewire\RouteManager;
 use App\Livewire\ScheduleManager;
+use App\Livewire\TripManager;
 use App\Livewire\UserManager;
 use App\Livewire\VehicleManager;
 use Illuminate\Support\Facades\Route;
@@ -41,6 +42,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/schedules', ScheduleManager::class)
         ->middleware('can:manage-schedules')
         ->name('schedules');
+
+    // Central trips board : view all trips (read-only for operators); updating a
+    // trip's status is additionally gated by manage-schedules inside the component.
+    Route::get('/trips', TripManager::class)
+        ->middleware('can:view-trips')
+        ->name('trips');
 
     // Fuel & maintenance logging (Phase 3) : both gated by log-fuel.
     Route::get('/fuel-logs', FuelLogManager::class)
