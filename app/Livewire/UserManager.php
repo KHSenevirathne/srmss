@@ -21,12 +21,17 @@ class UserManager extends Component
     use WithPagination;
 
     public string $search = '';
+
     public bool $showModal = false;
+
     public ?int $editingId = null;
 
     public string $name = '';
+
     public string $email = '';
+
     public string $password = '';
+
     public string $role = 'operator';
 
     public function updatingSearch(): void
@@ -34,10 +39,14 @@ class UserManager extends Component
         $this->resetPage();
     }
 
-    /** Role names come from the RBAC seeder (single source of truth). */
+    /**
+     * Assignable role names from the RBAC seeder (single source of truth).
+     * The `driver` role is excluded : driver logins are provisioned from the
+     * Drivers screen, never created or reassigned here.
+     */
     public function rolesList(): array
     {
-        return Role::orderBy('name')->pluck('name')->all();
+        return Role::where('name', '!=', 'driver')->orderBy('name')->pluck('name')->all();
     }
 
     public function create(): void
@@ -61,11 +70,11 @@ class UserManager extends Component
     public function save(): void
     {
         $data = $this->validate([
-            'name'     => 'required|string|max:120',
-            'email'    => ['required', 'email', 'max:120', Rule::unique('users', 'email')->ignore($this->editingId)],
+            'name' => 'required|string|max:120',
+            'email' => ['required', 'email', 'max:120', Rule::unique('users', 'email')->ignore($this->editingId)],
             // Password is required when creating, optional (leave blank to keep) when editing.
             'password' => [$this->editingId ? 'nullable' : 'required', 'string', 'min:8'],
-            'role'     => ['required', Rule::in($this->rolesList())],
+            'role' => ['required', Rule::in($this->rolesList())],
         ]);
 
         $user = User::findOrNew($this->editingId);
@@ -102,6 +111,8 @@ class UserManager extends Component
     {
         $users = User::query()
             ->with('roles')
+            // Drivers are managed on the Drivers screen, not here.
+            ->whereDoesntHave('roles', fn ($q) => $q->where('name', 'driver'))
             ->when($this->search, fn ($q) => $q
                 ->where('name', 'like', "%{$this->search}%")
                 ->orWhere('email', 'like', "%{$this->search}%"))

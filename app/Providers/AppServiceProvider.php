@@ -3,12 +3,14 @@
 namespace App\Providers;
 
 use App\Models\ActivityLog;
+use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -28,23 +30,33 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+        $this->configureGates();
         $this->recordAuthActivity();
+    }
+
+    /**
+     * Gates that combine permissions. The trips board is reachable by staff
+     * (view-trips) and by drivers seeing only their own trips (view-own-trips).
+     */
+    protected function configureGates(): void
+    {
+        Gate::define('access-trips', fn (User $user) => $user->canAny(['view-trips', 'view-own-trips']));
     }
 
     /** Audit trail (HR-02) for authentication events. */
     protected function recordAuthActivity(): void
     {
         Event::listen(Login::class, fn (Login $event) => ActivityLog::create([
-            'user_id'     => $event->user->getAuthIdentifier(),
-            'event'       => 'login',
+            'user_id' => $event->user->getAuthIdentifier(),
+            'event' => 'login',
             'description' => 'Logged in',
         ]));
 
         Event::listen(Logout::class, function (Logout $event) {
             if ($event->user) {
                 ActivityLog::create([
-                    'user_id'     => $event->user->getAuthIdentifier(),
-                    'event'       => 'logout',
+                    'user_id' => $event->user->getAuthIdentifier(),
+                    'event' => 'logout',
                     'description' => 'Logged out',
                 ]);
             }

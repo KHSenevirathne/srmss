@@ -66,6 +66,9 @@
                             <td>
                                 <span
                                     class="badge {{ $driver->status === 'active' ? 'badge-green' : 'badge-zinc' }}">{{ $driver->status }}</span>
+                                @if ($driver->user_id)
+                                    <span class="badge badge-blue ml-1">login</span>
+                                @endif
                             </td>
                             <td class="td-actions">
                                 @can('manage-fleet')
@@ -176,6 +179,29 @@
                                 <option value="inactive">Inactive</option>
                             </select>
                         </div>
+                    </div>
+
+                    {{-- Optional login : provisions a linked account with the driver role --}}
+                    <div class="border-t border-zinc-200 pt-4 dark:border-zinc-700">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" wire:model.live="needsLogin"
+                                class="h-4 w-4 rounded border-zinc-300 text-indigo-600 focus:ring-indigo-500 dark:border-zinc-600 dark:bg-zinc-800">
+                            <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">This driver needs a login</span>
+                        </label>
+                        <p class="mt-1 text-xs text-zinc-400">
+                            They sign in with their employee number
+                            ({{ $editingId ? $employeeNumber : 'assigned on save' }}) and the password below.
+                        </p>
+
+                        @if ($needsLogin)
+                            <div class="mt-3">
+                                <label class="label">Password{{ $hasLogin ? ' (leave blank to keep current)' : '' }}</label>
+                                <input type="password" wire:model="password" class="input" autocomplete="new-password">
+                                @error('password')
+                                    <p class="error-text">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        @endif
                     </div>
                 </div>
                 <div class="modal-foot">

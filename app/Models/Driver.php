@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Concerns\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Driver extends Model
@@ -11,7 +12,7 @@ class Driver extends Model
     use LogsActivity;
 
     protected $fillable = [
-        'name', 'nic', 'employee_number', 'phone', 'email', 'address',
+        'user_id', 'name', 'nic', 'employee_number', 'phone', 'email', 'address',
         'license_number', 'license_expiry', 'weekly_hours', 'status',
     ];
 
@@ -38,7 +39,13 @@ class Driver extends Model
             ->map(fn ($e) => (int) preg_replace('/\D/', '', (string) $e))
             ->max() ?? 0;
 
-        return 'E-' . str_pad((string) ($max + 1), 3, '0', STR_PAD_LEFT);
+        return 'E-'.str_pad((string) ($max + 1), 3, '0', STR_PAD_LEFT);
+    }
+
+    /** Optional login account for this driver (null when they cannot log in). */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function schedules(): HasMany

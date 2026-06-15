@@ -1,7 +1,8 @@
 <?php
 
+use App\Models\Driver;
 use App\Models\User;
-use Laravel\Fortify\Features;
+use Database\Seeders\RolesAndPermissionsSeeder;
 
 test('login screen can be rendered', function () {
     $response = $this->get(route('login'));
@@ -9,11 +10,11 @@ test('login screen can be rendered', function () {
     $response->assertOk();
 });
 
-test('users can authenticate using the login screen', function () {
+test('staff authenticate with their email', function () {
     $user = User::factory()->create();
 
     $response = $this->post(route('login.store'), [
-        'email' => $user->email,
+        'login' => $user->email,
         'password' => 'password',
     ]);
 
@@ -24,35 +25,38 @@ test('users can authenticate using the login screen', function () {
     $this->assertAuthenticated();
 });
 
+test('a driver authenticates with their employee number', function () {
+    $this->seed(RolesAndPermissionsSeeder::class);
+
+    $login = User::factory()->create(['email' => null]);
+    $login->assignRole('driver');
+    $driver = Driver::create([
+        'user_id' => $login->id,
+        'name' => 'Sunil', 'nic' => '900000000V', 'license_number' => 'DL-LOGIN',
+        'license_expiry' => now()->addYear(), 'employee_number' => 'E-001',
+    ]);
+
+    $response = $this->post(route('login.store'), [
+        'login' => 'E-001',
+        'password' => 'password',
+    ]);
+
+    $response->assertSessionHasNoErrors();
+    $this->assertAuthenticatedAs($login);
+    // Drivers land on their trips, not the dashboard.
+    $response->assertRedirect(route('trips'));
+});
+
 test('users can not authenticate with invalid password', function () {
     $user = User::factory()->create();
 
     $response = $this->post(route('login.store'), [
-        'email' => $user->email,
+        'login' => $user->email,
         'password' => 'wrong-password',
     ]);
 
-    $response->assertSessionHasErrorsIn('email');
+    $response->assertSessionHasErrors('login');
 
-    $this->assertGuest();
-});
-
-test('users with two factor enabled are redirected to two factor challenge', function () {
-    $this->skipUnlessFortifyHas(Features::twoFactorAuthentication());
-
-    Features::twoFactorAuthentication([
-        'confirm' => true,
-        'confirmPassword' => true,
-    ]);
-
-    $user = User::factory()->withTwoFactor()->create();
-
-    $response = $this->post(route('login.store'), [
-        'email' => $user->email,
-        'password' => 'password',
-    ]);
-
-    $response->assertRedirect(route('two-factor.login'));
     $this->assertGuest();
 });
 

@@ -120,3 +120,31 @@ test('an admin cannot delete their own account', function () {
 
     expect(User::find($admin->id))->not->toBeNull();
 });
+
+// --- Drivers are managed elsewhere ------------------------------------------
+
+test('driver accounts do not appear in the users list', function () {
+    $admin = User::factory()->create()->assignRole('admin');
+    $driverUser = User::factory()->create();
+    $driverUser->assignRole('driver');
+
+    $users = Livewire::actingAs($admin)
+        ->test(UserManager::class)
+        ->viewData('users');
+
+    expect($users->pluck('id')->all())->not->toContain($driverUser->id);
+});
+
+test('the driver role cannot be assigned from the users screen', function () {
+    $admin = User::factory()->create()->assignRole('admin');
+
+    Livewire::actingAs($admin)
+        ->test(UserManager::class)
+        ->call('create')
+        ->set('name', 'Should Fail')
+        ->set('email', 'fail@srmss.test')
+        ->set('password', 'password')
+        ->set('role', 'driver')
+        ->call('save')
+        ->assertHasErrors(['role']);
+});

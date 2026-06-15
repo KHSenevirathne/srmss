@@ -51,6 +51,17 @@ class DemoDataSeeder extends Seeder
             ['name' => 'Nimal Fernando', 'nic' => '197811223344', 'license_number' => 'DL-003', 'license_expiry' => now()->addYears(2)],
         ])->map(fn ($d) => Driver::create($d)); // employee_number auto-assigned (E-001, …)
 
+        // Give the first driver a login so the driver role can be demoed: they
+        // sign in with their employee number (E-001) and password "password".
+        $driverLogin = User::create([
+            'name' => $drivers[0]->name,
+            'email' => 'sunil@srmss.test',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+        ]);
+        $driverLogin->syncRoles(['driver']);
+        $drivers[0]->update(['user_id' => $driverLogin->id]);
+
         $route = BusRoute::create([
             'code' => 'R-138', 'name' => 'Colombo – Galle',
             'start_point' => 'Colombo Fort', 'end_point' => 'Galle',
@@ -85,10 +96,13 @@ class DemoDataSeeder extends Seeder
         ]);
 
         // A few trips with varied statuses so the trip board / reports have data.
+        // Today's trip carries a pending driver request so the approval queue is
+        // visible in the demo (the driver asked to mark it completed).
         $schedule->trips()->createMany([
             ['trip_date' => now()->subDays(2)->toDateString(), 'status' => 'completed'],
             ['trip_date' => now()->subDay()->toDateString(),  'status' => 'delayed'],
-            ['trip_date' => now()->toDateString(),            'status' => 'on_time'],
+            ['trip_date' => now()->toDateString(),            'status' => 'on_time',
+                'pending_status' => 'completed', 'status_requested_by' => $driverLogin->id, 'status_requested_at' => now()],
             ['trip_date' => now()->addDay()->toDateString(),  'status' => 'scheduled'],
         ]);
 

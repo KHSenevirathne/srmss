@@ -19,6 +19,14 @@ use Livewire\Component;
  */
 class Dashboard extends Component
 {
+    /** Drivers have no depot dashboard; send them to their own trips. */
+    public function mount()
+    {
+        if (auth()->user()->isDriver()) {
+            return redirect()->route('trips');
+        }
+    }
+
     public function render()
     {
         $today = Carbon::today();
@@ -31,11 +39,11 @@ class Dashboard extends Component
             ->pluck('total', 'status');
 
         $cards = [
-            'routes'          => BusRoute::count(),
+            'routes' => BusRoute::count(),
             'activeTripsToday' => Trip::whereDate('trip_date', $today)
                 ->whereIn('status', ['scheduled', 'on_time', 'delayed'])
                 ->count(),
-            'availableBuses'  => Vehicle::where('status', 'available')->count(),
+            'availableBuses' => Vehicle::where('status', 'available')->count(),
             'assignedDrivers' => Schedule::where('status', '!=', 'cancelled')
                 ->distinct('driver_id')
                 ->count('driver_id'),
@@ -81,7 +89,7 @@ class Dashboard extends Component
             ->get()
             ->map(fn ($row) => [
                 'registration_number' => $row->registration_number,
-                'trips'               => (int) $row->trips,
+                'trips' => (int) $row->trips,
             ]);
 
         // Network map : every route that has at least one geo-located stop, with
@@ -92,16 +100,16 @@ class Dashboard extends Component
             ->orderBy('code')
             ->get()
             ->map(fn (BusRoute $route) => [
-                'id'    => $route->id,
-                'code'  => $route->code,
-                'name'  => $route->name,
+                'id' => $route->id,
+                'code' => $route->code,
+                'name' => $route->name,
                 'start' => $route->start_point,
-                'end'   => $route->end_point,
+                'end' => $route->end_point,
                 'stops' => $route->stops->map(fn ($s) => [
                     'name' => $s->name,
-                    'seq'  => (int) $s->sequence,
-                    'lat'  => (float) $s->latitude,
-                    'lng'  => (float) $s->longitude,
+                    'seq' => (int) $s->sequence,
+                    'lat' => (float) $s->latitude,
+                    'lng' => (float) $s->longitude,
                 ])->values(),
             ])
             ->filter(fn ($r) => $r['stops']->isNotEmpty())
@@ -115,22 +123,22 @@ class Dashboard extends Component
             ->get(['registration_number', 'mileage'])
             ->map(fn ($v) => [
                 'registration_number' => $v->registration_number,
-                'mileage'             => (int) $v->mileage,
+                'mileage' => (int) $v->mileage,
             ]);
 
         return view('livewire.dashboard', [
-            'cards'              => $cards,
-            'tripCounts'         => $tripCounts,
-            'todaySchedules'     => $todaySchedules,
-            'expiringLicences'   => $expiringLicences,
+            'cards' => $cards,
+            'tripCounts' => $tripCounts,
+            'todaySchedules' => $todaySchedules,
+            'expiringLicences' => $expiringLicences,
             'serviceDueVehicles' => $serviceDueVehicles,
-            'fleet'              => $fleet,
-            'fleetTotal'        => $fleet->sum(),
-            'mostUsedVehicle'    => $vehicleUsage->first(),
-            'leastUsedVehicle'   => $vehicleUsage->last(),
+            'fleet' => $fleet,
+            'fleetTotal' => $fleet->sum(),
+            'mostUsedVehicle' => $vehicleUsage->first(),
+            'leastUsedVehicle' => $vehicleUsage->last(),
             'highestMileageVehicle' => $vehicleMileage->first(),
-            'lowestMileageVehicle'  => $vehicleMileage->last(),
-            'mapRoutes'          => $mapRoutes,
+            'lowestMileageVehicle' => $vehicleMileage->last(),
+            'mapRoutes' => $mapRoutes,
         ]);
     }
 }

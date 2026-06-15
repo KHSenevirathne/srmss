@@ -43,10 +43,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('can:manage-schedules')
         ->name('schedules');
 
-    // Central trips board : view all trips (read-only for operators); updating a
-    // trip's status is additionally gated by manage-schedules inside the component.
+    // Central trips board : staff (view-trips) see every trip; a driver
+    // (view-own-trips) sees only their own. What each can do to a trip's status
+    // is enforced inside the component (set / request / approve).
     Route::get('/trips', TripManager::class)
-        ->middleware('can:view-trips')
+        ->middleware('can:access-trips')
         ->name('trips');
 
     // Fuel & maintenance logging (Phase 3) : both gated by log-fuel.

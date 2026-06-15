@@ -15,10 +15,18 @@
 
         <flux:sidebar.nav>
             <flux:sidebar.group :heading="__('Platform')" class="grid">
-                <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')"
-                    wire:navigate>
-                    {{ __('Dashboard') }}
-                </flux:sidebar.item>
+                @unless (auth()->user()->isDriver())
+                    <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')"
+                        wire:navigate>
+                        {{ __('Dashboard') }}
+                    </flux:sidebar.item>
+                @endunless
+                @can('view-own-trips')
+                    <flux:sidebar.item icon="list-bullet" :href="route('trips')" :current="request()->routeIs('trips')"
+                        wire:navigate>
+                        {{ __('My Trips') }}
+                    </flux:sidebar.item>
+                @endcan
                 @can('view-reports')
                     <flux:sidebar.item icon="chart-bar" :href="route('reports')" :current="request()->routeIs('reports')"
                         wire:navigate>
@@ -115,13 +123,15 @@
 
                 <flux:menu.separator />
 
-                <flux:menu.radio.group>
-                    <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>
-                        {{ __('Settings') }}
-                    </flux:menu.item>
-                </flux:menu.radio.group>
+                @unless (auth()->user()->isDriver())
+                    <flux:menu.radio.group>
+                        <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>
+                            {{ __('Settings') }}
+                        </flux:menu.item>
+                    </flux:menu.radio.group>
 
-                <flux:menu.separator />
+                    <flux:menu.separator />
+                @endunless
 
                 <form method="POST" action="{{ route('logout') }}" class="w-full">
                     @csrf

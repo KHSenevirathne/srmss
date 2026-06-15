@@ -69,7 +69,7 @@ test('the employee number is auto-generated, short, and sequential', function ()
         Livewire::actingAs($admin)
             ->test(DriverManager::class)
             ->call('create')
-            ->set('name', 'Driver ' . $licence)
+            ->set('name', 'Driver '.$licence)
             ->set('nic', $nic)
             ->set('license_number', $licence)
             ->set('license_expiry', now()->addYear()->toDateString())
@@ -184,4 +184,72 @@ test('drivers can be filtered by status', function () {
 
     expect($drivers->total())->toBe(1);
     expect($drivers->first()->name)->toBe('Inactive Ivan');
+});
+
+// --- Optional login provisioning --------------------------------------------
+
+test('enabling login provisions a linked account with the driver role', function () {
+    $admin = User::factory()->create()->assignRole('admin');
+
+    Livewire::actingAs($admin)
+        ->test(DriverManager::class)
+        ->call('create')
+        ->set('name', 'Loginful')
+        ->set('nic', '990000001V')
+        ->set('license_number', 'DL-L1')
+        ->set('license_expiry', now()->addYear()->toDateString())
+        ->set('needsLogin', true)
+        ->set('password', 'password')
+        ->call('save')
+        ->assertHasNoErrors();
+
+    $driver = Driver::where('license_number', 'DL-L1')->first();
+    expect($driver->user_id)->not->toBeNull();
+    expect($driver->user->hasRole('driver'))->toBeTrue();
+});
+
+test('a password is required when enabling login', function () {
+    $admin = User::factory()->create()->assignRole('admin');
+
+    Livewire::actingAs($admin)
+        ->test(DriverManager::class)
+        ->call('create')
+        ->set('name', 'No Password')
+        ->set('nic', '990000002V')
+        ->set('license_number', 'DL-L2')
+        ->set('license_expiry', now()->addYear()->toDateString())
+        ->set('needsLogin', true)
+        ->set('password', '')
+        ->call('save')
+        ->assertHasErrors(['password']);
+});
+
+test('disabling login removes the linked account', function () {
+    $admin = User::factory()->create()->assignRole('admin');
+
+    Livewire::actingAs($admin)
+        ->test(DriverManager::class)
+        ->call('create')
+        ->set('name', 'Toggle Off')
+        ->set('nic', '990000003V')
+        ->set('license_number', 'DL-L3')
+        ->set('license_expiry', now()->addYear()->toDateString())
+        ->set('needsLogin', true)
+        ->set('password', 'password')
+        ->call('save')
+        ->assertHasNoErrors();
+
+    $driver = Driver::where('license_number', 'DL-L3')->first();
+    $userId = $driver->user_id;
+    expect($userId)->not->toBeNull();
+
+    Livewire::actingAs($admin)
+        ->test(DriverManager::class)
+        ->call('edit', $driver->id)
+        ->set('needsLogin', false)
+        ->call('save')
+        ->assertHasNoErrors();
+
+    expect($driver->fresh()->user_id)->toBeNull();
+    expect(User::find($userId))->toBeNull();
 });
