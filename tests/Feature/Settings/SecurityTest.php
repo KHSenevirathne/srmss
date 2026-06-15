@@ -41,6 +41,40 @@ test('security settings page requires password confirmation', function () {
         ->assertRedirect(route('password.confirm'));
 });
 
+test('the password-confirmation gate accepts a valid password', function () {
+    // Regression: Fortify's username field is "login", which is not a real users
+    // column (drivers are resolved by employee_number via authenticateUsing). The
+    // default confirm-password action ran validate(['login' => $user->login, ...]),
+    // which threw "Unknown column 'login'" and 500'd the entire security page.
+    // FortifyServiceProvider now confirms against the password hash directly.
+    $user = User::factory()->create(['password' => Hash::make('password')]);
+
+    $this->actingAs($user)
+        ->post(route('password.confirm.store'), ['password' => 'password'])
+        ->assertSessionHasNoErrors()
+        ->assertSessionHas('auth.password_confirmed_at')
+        ->assertRedirect();
+});
+
+test('the password-confirmation gate rejects a wrong password', function () {
+    $user = User::factory()->create(['password' => Hash::make('password')]);
+
+    $this->actingAs($user)
+        ->post(route('password.confirm.store'), ['password' => 'wrong-password'])
+        ->assertSessionHasErrors('password');
+});
+
+test('confirming the password unlocks the security settings page', function () {
+    $user = User::factory()->create(['password' => Hash::make('password')]);
+
+    // Without confirmation the gate redirects away...
+    $this->actingAs($user)->get(route('security.edit'))->assertRedirect(route('password.confirm'));
+
+    // ...confirming the password then lets the page load.
+    $this->actingAs($user)->post(route('password.confirm.store'), ['password' => 'password']);
+    $this->actingAs($user)->get(route('security.edit'))->assertOk()->assertSee('Update password');
+});
+
 test('a driver cannot reach the security settings page', function () {
     $this->actingAs(makeDriverLogin())
         ->withSession(['auth.password_confirmed_at' => time()])

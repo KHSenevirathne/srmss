@@ -78,6 +78,14 @@ class FortifyServiceProvider extends ServiceProvider
 
             return null;
         });
+
+        // Password confirmation can't use the default credential lookup: our
+        // username field is "login" (no such column), so Fortify's default
+        // `validate(['login' => $user->login, …])` throws. Confirm against the
+        // already-authenticated user's password hash directly instead.
+        Fortify::confirmPasswordsUsing(
+            fn ($user, ?string $password) => Hash::check((string) $password, $user->password)
+        );
     }
 
     /**
