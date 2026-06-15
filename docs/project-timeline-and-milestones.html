@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SRMSS - Project Timeline & Milestones</title>
+<style>
+  :root{
+    --p1:#3b82f6; /* research - blue   */
+    --p2:#8b5cf6; /* design   - violet */
+    --p3:#10b981; /* develop  - emerald*/
+    --p4:#f59e0b; /* testing  - amber  */
+    --p5:#ef4444; /* bug fix  - red    */
+    --p6:#14b8a6; /* deploy   - teal   */
+    --ink:#1e293b;
+    --muted:#64748b;
+  }
+  *{ box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  @page{ size:A4; margin:14mm 12mm; }
+  body{
+    font-family:"Segoe UI",Arial,Helvetica,sans-serif;
+    color:var(--ink); margin:0; font-size:12px; line-height:1.5;
+  }
+  h1,h2,h3{ margin:0; }
+
+  /* ---- Header banner ---- */
+  .banner{
+    background:linear-gradient(120deg,#4f46e5 0%,#7c3aed 55%,#9333ea 100%);
+    color:#fff; padding:26px 28px; border-radius:14px;
+    box-shadow:0 8px 24px rgba(79,70,229,.25);
+  }
+  .banner h1{ font-size:24px; letter-spacing:.3px; }
+  .banner .sub{ font-size:13px; opacity:.92; margin-top:4px; }
+  .banner .pill{
+    display:inline-block; margin-top:14px; background:rgba(255,255,255,.18);
+    border:1px solid rgba(255,255,255,.35); padding:6px 14px; border-radius:999px;
+    font-size:12px; font-weight:600;
+  }
+
+  .meta{
+    display:flex; flex-wrap:wrap; gap:10px; margin:16px 0 4px;
+  }
+  .meta div{
+    flex:1 1 30%; background:#f8fafc; border:1px solid #e2e8f0;
+    border-radius:10px; padding:10px 12px;
+  }
+  .meta b{ display:block; color:var(--muted); font-size:10px; text-transform:uppercase; letter-spacing:.5px; }
+
+  .section-title{
+    font-size:15px; font-weight:700; margin:24px 0 12px;
+    padding-left:10px; border-left:5px solid #7c3aed;
+  }
+
+  /* ---- Phase overview table ---- */
+  table{ width:100%; border-collapse:collapse; border-radius:10px; overflow:hidden; }
+  th{ background:#312e81; color:#fff; text-align:left; padding:8px 10px; font-size:11px; }
+  td{ padding:8px 10px; border-bottom:1px solid #eef2f7; }
+  tr:nth-child(even) td{ background:#f8fafc; }
+  .tag{ display:inline-block; width:30px; text-align:center; color:#fff;
+        border-radius:6px; font-weight:700; font-size:11px; padding:2px 0; }
+
+  /* ---- Phase cards (weekly breakdown) ---- */
+  .card{
+    border:1px solid #e2e8f0; border-left:6px solid var(--c,#94a3b8);
+    border-radius:10px; padding:12px 14px; margin-bottom:10px; background:#fff;
+    box-shadow:0 1px 3px rgba(0,0,0,.04);
+  }
+  .card h3{ font-size:13px; }
+  .card .when{ float:right; font-size:11px; color:var(--muted); font-weight:600; }
+  .card ul{ margin:8px 0 0; padding-left:18px; }
+  .card li{ margin:2px 0; }
+
+  /* ---- Gantt ---- */
+  .gantt{ border:1px solid #e2e8f0; border-radius:10px; padding:14px; background:#fff; }
+  .grow{ display:grid; grid-template-columns:150px 1fr; align-items:center; margin:6px 0; }
+  .glabel{ font-size:11px; font-weight:600; }
+  .gtrack{
+    position:relative; height:18px; border-radius:6px;
+    background:repeating-linear-gradient(90deg,#f1f5f9 0 20%,#e9eef5 20% 20.4%);
+  }
+  .gbar{ position:absolute; top:0; height:18px; border-radius:6px; color:#fff;
+         font-size:9px; line-height:18px; text-align:center; font-weight:700;
+         box-shadow:0 1px 2px rgba(0,0,0,.18); }
+  .gweeks{ display:grid; grid-template-columns:150px repeat(5,1fr); font-size:9px;
+           color:var(--muted); margin-top:6px; text-align:center; }
+  .gweeks b{ color:var(--ink); display:block; }
+
+  /* ---- Milestones ---- */
+  .ms{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .mcard{ border-radius:10px; padding:12px; color:#fff; }
+  .mcard .id{ font-size:11px; font-weight:800; opacity:.9; }
+  .mcard .name{ font-size:12px; font-weight:600; margin:4px 0 8px; min-height:32px; }
+  .mcard .date{ font-size:11px; background:rgba(255,255,255,.22); border-radius:6px;
+                padding:3px 8px; display:inline-block; font-weight:700; }
+
+  .deliv{ columns:2; column-gap:24px; }
+  .deliv li{ margin:4px 0; }
+
+  .note{ margin-top:18px; background:#fffbeb; border:1px solid #fcd34d;
+         border-radius:10px; padding:12px 14px; font-size:11px; color:#92400e; }
+  .footer{ text-align:center; color:var(--muted); font-size:10px; margin-top:18px; }
+</style>
+</head>
+<body>
+
+  <div class="banner">
+    <h1>SRMSS &mdash; Smart Route Management &amp; Scheduling System</h1>
+    <div class="sub">Project Timeline &amp; Milestones &nbsp;|&nbsp; Web application for public-transport depot operations</div>
+    <span class="pill">&#128197; 18 May 2026 &nbsp;&rarr;&nbsp; 16 June 2026 &nbsp;&bull;&nbsp; ~4.5 weeks</span>
+  </div>
+
+  <div class="meta">
+    <div><b>Methodology</b>Iterative SDLC &mdash; Research &rarr; Plan &rarr; Design &rarr; Build &rarr; Test &rarr; Fix &rarr; Deploy</div>
+    <div><b>Tech stack</b>PHP 8.4 &middot; Laravel 13 &middot; Livewire 4 &middot; Flux UI &middot; Tailwind 4 &middot; DomPDF</div>
+    <div><b>Roles</b>Admin &middot; Supervisor &middot; Operator &middot; Driver</div>
+  </div>
+
+  <!-- PHASE OVERVIEW -->
+  <div class="section-title">1 &nbsp; Phase Overview</div>
+  <table>
+    <tr><th>Phase</th><th>Activity</th><th>Dates</th><th>Duration</th></tr>
+    <tr><td><span class="tag" style="background:var(--p1)">P1</span></td><td>Research &amp; Requirements</td><td>18 May &ndash; 24 May</td><td>1 week</td></tr>
+    <tr><td><span class="tag" style="background:var(--p2)">P2</span></td><td>Planning &amp; System Design</td><td>25 May &ndash; 31 May</td><td>1 week</td></tr>
+    <tr><td><span class="tag" style="background:var(--p3)">P3</span></td><td>Core Development</td><td>01 Jun &ndash; 11 Jun</td><td>1.5 weeks</td></tr>
+    <tr><td><span class="tag" style="background:var(--p4)">P4</span></td><td>Testing &amp; Quality Assurance</td><td>11 Jun &ndash; 14 Jun</td><td>4 days</td></tr>
+    <tr><td><span class="tag" style="background:var(--p5)">P5</span></td><td>Bug Fixing &amp; Refinement</td><td>14 Jun &ndash; 15 Jun</td><td>2 days</td></tr>
+    <tr><td><span class="tag" style="background:var(--p6)">P6</span></td><td>Documentation, Deploy &amp; Submit</td><td>15 Jun &ndash; 16 Jun</td><td>2 days</td></tr>
+  </table>
+
+  <!-- GANTT -->
+  <div class="section-title">2 &nbsp; Gantt Chart</div>
+  <div class="gantt">
+    <div class="grow"><div class="glabel">Research &amp; Requirements</div><div class="gtrack"><div class="gbar" style="left:0%;width:23%;background:var(--p1)">P1</div></div></div>
+    <div class="grow"><div class="glabel">Planning &amp; Design</div><div class="gtrack"><div class="gbar" style="left:23%;width:24%;background:var(--p2)">P2</div></div></div>
+    <div class="grow"><div class="glabel">Core Development</div><div class="gtrack"><div class="gbar" style="left:47%;width:37%;background:var(--p3)">P3</div></div></div>
+    <div class="grow"><div class="glabel">Testing &amp; QA</div><div class="gtrack"><div class="gbar" style="left:79%;width:14%;background:var(--p4)">P4</div></div></div>
+    <div class="grow"><div class="glabel">Bug Fixing</div><div class="gtrack"><div class="gbar" style="left:89%;width:8%;background:var(--p5)">P5</div></div></div>
+    <div class="grow"><div class="glabel">Docs / Deploy / Submit</div><div class="gtrack"><div class="gbar" style="left:92%;width:8%;background:var(--p6)">P6</div></div></div>
+    <div class="gweeks">
+      <div></div>
+      <div><b>Week 1</b>18&ndash;24 May</div>
+      <div><b>Week 2</b>25&ndash;31 May</div>
+      <div><b>Week 3</b>01&ndash;07 Jun</div>
+      <div><b>Week 4</b>08&ndash;14 Jun</div>
+      <div><b>Wrap-up</b>15&ndash;16 Jun</div>
+    </div>
+  </div>
+
+  <!-- WEEKLY BREAKDOWN -->
+  <div class="section-title">3 &nbsp; Detailed Weekly Breakdown</div>
+
+  <div class="card" style="--c:var(--p1)">
+    <span class="when">18 &ndash; 24 May</span>
+    <h3>Week 1 &mdash; Research &amp; Requirements</h3>
+    <ul>
+      <li>Define the problem: manual, spreadsheet-based depot route planning.</li>
+      <li>Study existing fleet-management solutions and industry best practice.</li>
+      <li>Identify target users and gather functional + non-functional requirements.</li>
+      <li>Decide the technology stack (Laravel + Livewire + Flux UI).</li>
+      <li><b>Output:</b> Requirements Specification document.</li>
+    </ul>
+  </div>
+
+  <div class="card" style="--c:var(--p2)">
+    <span class="when">25 &ndash; 31 May</span>
+    <h3>Week 2 &mdash; Planning &amp; System Design</h3>
+    <ul>
+      <li>Project plan, task breakdown and this timeline.</li>
+      <li>Database schema, ER diagram, use-case and architecture diagrams.</li>
+      <li>Role / permission matrix and UI design system (app.css).</li>
+      <li>Wireframe key screens; initialise repository and dev environment.</li>
+      <li><b>Output:</b> Design document + initialised codebase.</li>
+    </ul>
+  </div>
+
+  <div class="card" style="--c:var(--p3)">
+    <span class="when">01 &ndash; 11 Jun</span>
+    <h3>Weeks 3&ndash;4 &mdash; Core Development</h3>
+    <ul>
+      <li>Authentication &amp; authorisation (Fortify, 2FA, password confirmation).</li>
+      <li>User management, roles, route &amp; stop planning with interactive map.</li>
+      <li>Vehicle / driver records; fuel &amp; maintenance logs with service-due logic.</li>
+      <li>Scheduling with conflict detection, trips board, dashboard &amp; network map.</li>
+      <li>Reporting engine with PDF export and activity / audit logging.</li>
+      <li><b>Output:</b> Feature-complete SRMSS application.</li>
+    </ul>
+  </div>
+
+  <div class="card" style="--c:var(--p4)">
+    <span class="when">11 &ndash; 14 Jun</span>
+    <h3>Testing &amp; Quality Assurance</h3>
+    <ul>
+      <li>Unit and feature tests with Pest; lint checks (Pint).</li>
+      <li>Manual test checklist and role-based access-control verification.</li>
+    </ul>
+  </div>
+
+  <div class="card" style="--c:var(--p5)">
+    <span class="when">14 &ndash; 15 Jun</span>
+    <h3>Bug Fixing &amp; Refinement</h3>
+    <ul>
+      <li>Resolve defects found in testing; refine security settings &amp; 2FA.</li>
+      <li>Restrict profile / security settings access by role; final regression pass.</li>
+    </ul>
+  </div>
+
+  <div class="card" style="--c:var(--p6)">
+    <span class="when">15 &ndash; 16 Jun</span>
+    <h3>Documentation, Deployment &amp; Submission</h3>
+    <ul>
+      <li>Complete user guide, final report and diagrams.</li>
+      <li>Prepare deployment package (InfinityFree) and deploy.</li>
+      <li>Final review and coursework submission.</li>
+    </ul>
+  </div>
+
+  <!-- MILESTONES -->
+  <div class="section-title">4 &nbsp; Key Milestones</div>
+  <div class="ms">
+    <div class="mcard" style="background:var(--p1)"><div class="id">M1</div><div class="name">Requirements Specification approved</div><div class="date">24 May 2026</div></div>
+    <div class="mcard" style="background:var(--p2)"><div class="id">M2</div><div class="name">System Design &amp; DB schema finalised</div><div class="date">31 May 2026</div></div>
+    <div class="mcard" style="background:var(--p3)"><div class="id">M3</div><div class="name">Auth + core modules functional</div><div class="date">07 Jun 2026</div></div>
+    <div class="mcard" style="background:#0ea5e9"><div class="id">M4</div><div class="name">Feature-complete (all modules built)</div><div class="date">11 Jun 2026</div></div>
+    <div class="mcard" style="background:var(--p4)"><div class="id">M5</div><div class="name">Testing &amp; QA complete</div><div class="date">14 Jun 2026</div></div>
+    <div class="mcard" style="background:var(--p6)"><div class="id">M6</div><div class="name">Project deployed &amp; submitted</div><div class="date">16 Jun 2026</div></div>
+  </div>
+
+  <!-- DELIVERABLES -->
+  <div class="section-title">5 &nbsp; Deliverables Summary</div>
+  <ul class="deliv">
+    <li>Requirements Specification document <b>(M1)</b></li>
+    <li>System Design document + ER / use-case diagrams <b>(M2)</b></li>
+    <li>Working SRMSS web application <b>(M3, M4)</b></li>
+    <li>Automated test suite + manual test checklist <b>(M5)</b></li>
+    <li>User guide and final project report <b>(M6)</b></li>
+    <li>Deployed application + source-code repository <b>(M6)</b></li>
+  </ul>
+
+  <div class="note">
+    <b>Note:</b> This is a planned, industry-standard SDLC schedule presented for project
+    documentation. Phase boundaries are indicative &mdash; some activities (e.g. testing and
+    bug fixing) overlapped with development in practice.
+  </div>
+
+  <div class="footer">SRMSS &middot; Smart Route Management and Scheduling System &middot; Project Timeline &amp; Milestones</div>
+
+</body>
+</html>
