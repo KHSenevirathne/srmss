@@ -21,12 +21,14 @@
                         {{ __('Dashboard') }}
                     </flux:sidebar.item>
                 @endunless
-                @can('view-own-trips')
+                {{-- "My Trips" is the driver's own scoped board : show it only to
+                     actual drivers, not to staff who merely hold the permission. --}}
+                @if (auth()->user()->isDriver())
                     <flux:sidebar.item icon="list-bullet" :href="route('trips')" :current="request()->routeIs('trips')"
                         wire:navigate>
                         {{ __('My Trips') }}
                     </flux:sidebar.item>
-                @endcan
+                @endif
                 @can('view-reports')
                     <flux:sidebar.item icon="chart-bar" :href="route('reports')" :current="request()->routeIs('reports')"
                         wire:navigate>
@@ -35,7 +37,9 @@
                 @endcan
             </flux:sidebar.group>
 
-            {{-- Operations : each item is shown only if the user holds the guarding permission. --}}
+            {{-- Operations : each item is shown only if the user holds the guarding
+                 permission; the whole group is hidden when none apply (e.g. drivers). --}}
+            @canany(['manage-fleet', 'manage-routes', 'manage-schedules', 'view-trips', 'log-fuel'])
             <flux:sidebar.group :heading="__('Operations')" class="grid">
                 @can('manage-fleet')
                     <flux:sidebar.item icon="truck" :href="route('vehicles')" :current="request()->routeIs('vehicles')"
@@ -77,6 +81,7 @@
                 @endcan
                 {{-- Phase 4+ : Schedules, Reports link here, each behind its own @can. --}}
             </flux:sidebar.group>
+            @endcanany
 
             {{-- Administration : admin only. --}}
             @can('manage-users')
@@ -123,15 +128,15 @@
 
                 <flux:menu.separator />
 
-                @unless (auth()->user()->isDriver())
-                    <flux:menu.radio.group>
-                        <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>
-                            {{ __('Settings') }}
-                        </flux:menu.item>
-                    </flux:menu.radio.group>
+                <flux:menu.radio.group>
+                    {{-- Drivers may only change appearance (theme), not their account. --}}
+                    <flux:menu.item :href="route(auth()->user()->isDriver() ? 'appearance.edit' : 'profile.edit')"
+                        icon="cog" wire:navigate>
+                        {{ __('Settings') }}
+                    </flux:menu.item>
+                </flux:menu.radio.group>
 
-                    <flux:menu.separator />
-                @endunless
+                <flux:menu.separator />
 
                 <form method="POST" action="{{ route('logout') }}" class="w-full">
                     @csrf

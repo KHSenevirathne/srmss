@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Driver;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
@@ -134,11 +135,15 @@ class DriverManager extends Component
             'password' => [Rule::requiredIf($this->needsLogin && ! $this->hasLogin), 'nullable', 'string', 'min:8'],
         ]);
 
-        $driver = Driver::findOrNew($this->editingId);
-        $driver->fill(collect($data)->except(['needsLogin', 'password'])->all());
-        $driver->save();
+        // One transaction so a failure mid-provisioning never leaves a driver
+        // record and its login account half-written.
+        DB::transaction(function () use ($data) {
+            $driver = Driver::findOrNew($this->editingId);
+            $driver->fill(collect($data)->except(['needsLogin', 'password'])->all());
+            $driver->save();
 
-        $this->syncLoginAccount($driver, $data['password']);
+            $this->syncLoginAccount($driver, $data['password']);
+        });
 
         $this->showModal = false;
         session()->flash('status', $this->editingId ? 'Driver updated.' : 'Driver added.');

@@ -106,7 +106,7 @@
                                     };
                                 @endphp
 
-                                <div class="flex flex-col gap-1.5">
+                                <div class="flex flex-col items-start gap-1.5">
                                     {{-- Current status control --}}
                                     @if ($canManage)
                                         <select wire:change="updateTripStatus({{ $trip->id }}, $event.target.value)"

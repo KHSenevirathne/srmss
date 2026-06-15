@@ -6,6 +6,21 @@ use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Livewire;
 
+/** Seed roles and return a login-enabled driver user. */
+function makeDriverLogin(): User
+{
+    test()->seed(RolesAndPermissionsSeeder::class);
+
+    $login = User::factory()->create(['email' => null]);
+    $login->assignRole('driver');
+    Driver::create([
+        'user_id' => $login->id, 'name' => 'D', 'nic' => '900000001V',
+        'license_number' => 'DL-D1', 'license_expiry' => now()->addYear(), 'employee_number' => 'E-009',
+    ]);
+
+    return $login;
+}
+
 test('security settings page shows only password management', function () {
     $user = User::factory()->create();
 
@@ -27,19 +42,23 @@ test('security settings page requires password confirmation', function () {
 });
 
 test('a driver cannot reach the security settings page', function () {
-    $this->seed(RolesAndPermissionsSeeder::class);
-
-    $login = User::factory()->create(['email' => null]);
-    $login->assignRole('driver');
-    Driver::create([
-        'user_id' => $login->id, 'name' => 'D', 'nic' => '900000001V',
-        'license_number' => 'DL-D1', 'license_expiry' => now()->addYear(), 'employee_number' => 'E-009',
-    ]);
-
-    $this->actingAs($login)
+    $this->actingAs(makeDriverLogin())
         ->withSession(['auth.password_confirmed_at' => time()])
         ->get(route('security.edit'))
         ->assertForbidden();
+});
+
+test('a driver cannot reach the profile settings page', function () {
+    $this->actingAs(makeDriverLogin())
+        ->get(route('profile.edit'))
+        ->assertForbidden();
+});
+
+test('a driver can change appearance (theme)', function () {
+    $this->actingAs(makeDriverLogin())
+        ->get(route('appearance.edit'))
+        ->assertOk()
+        ->assertSee('Appearance');
 });
 
 test('password can be updated', function () {

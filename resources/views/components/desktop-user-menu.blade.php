@@ -19,11 +19,11 @@
         </div>
         <flux:menu.separator />
         <flux:menu.radio.group>
-            @unless (auth()->user()->isDriver())
-                <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>
-                    {{ __('Settings') }}
-                </flux:menu.item>
-            @endunless
+            {{-- Drivers may only change appearance (theme), not their account. --}}
+            <flux:menu.item :href="route(auth()->user()->isDriver() ? 'appearance.edit' : 'profile.edit')"
+                icon="cog" wire:navigate>
+                {{ __('Settings') }}
+            </flux:menu.item>
             <form method="POST" action="{{ route('logout') }}" class="w-full">
                 @csrf
                 <flux:menu.item
