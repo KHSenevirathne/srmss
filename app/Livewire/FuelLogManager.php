@@ -9,12 +9,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Validate;
 
-/**
- * Fuel logging (Phase 3) : record fuel per vehicle, filter by vehicle + date
- * range. Follows the VehicleManager pattern. The whole screen is guarded by the
- * `log-fuel` permission (route middleware), which every role holds, so there is
- * no per-button @can gating here.
- */
+/** Records fuel per vehicle, filterable by vehicle and date range. */
 class FuelLogManager extends Component
 {
     use WithPagination;
@@ -43,7 +38,7 @@ class FuelLogManager extends Component
     #[Validate('required|date')]
     public string $logged_at = '';
 
-    // Optional link to a specific trip (trips are generated in Phase 4).
+    // Optional link to a specific trip.
     #[Validate('nullable|exists:trips,id')]
     public string $trip_id = '';
 
@@ -104,8 +99,7 @@ class FuelLogManager extends Component
 
         FuelLog::updateOrCreate(['id' => $this->editingId], $data);
 
-        // Keep the vehicle's recorded mileage in step with the odometer reading
-        // (only ever increases : a backdated/corrected lower reading won't reduce it).
+        // Mileage only ever increases; a lower/backdated reading won't reduce it.
         if ($data['odometer'] !== null) {
             $vehicle = Vehicle::find($data['vehicle_id']);
             if ($vehicle && (int) $data['odometer'] > (int) $vehicle->mileage) {
@@ -134,8 +128,7 @@ class FuelLogManager extends Component
             ->latest('logged_at')
             ->paginate(10);
 
-        // Optional trip link: only the selected vehicle's trips, newest first, so the
-        // list stays short and relevant instead of every trip in the system.
+        // Only the selected vehicle's trips, newest first.
         $trips = $this->vehicle_id
             ? Trip::query()
                 ->with('schedule.route')

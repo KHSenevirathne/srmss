@@ -11,16 +11,8 @@ use Livewire\Component;
 use Livewire\WithPagination;
 
 /**
- * Drivers module : full CRUD, mirrors VehicleManager (the reference pattern).
- *
- * Same shape as the Vehicles screen: list + live search + pagination, a
- * modal-driven create/edit form, #[Validate] rules, and delete-with-confirm.
- * Guarded by the `manage-fleet` permission (drivers + vehicles share it), so
- * destructive buttons are wrapped in @can('manage-fleet') in the Blade view.
- *
- * A driver may optionally be given a login (the "needs login" toggle): that
- * provisions a linked User with the `driver` role, who logs in by employee
- * number. Drivers are therefore never created from the Users screen.
+ * Full CRUD for drivers, plus an optional login: the "needs login" toggle provisions
+ * a linked User with the driver role, who signs in by employee number.
  */
 class DriverManager extends Component
 {
@@ -135,8 +127,7 @@ class DriverManager extends Component
             'password' => [Rule::requiredIf($this->needsLogin && ! $this->hasLogin), 'nullable', 'string', 'min:8'],
         ]);
 
-        // One transaction so a failure mid-provisioning never leaves a driver
-        // record and its login account half-written.
+        // One transaction so a failure never leaves the login account half-written.
         DB::transaction(function () use ($data) {
             $driver = Driver::findOrNew($this->editingId);
             $driver->fill(collect($data)->except(['needsLogin', 'password'])->all());
@@ -150,11 +141,7 @@ class DriverManager extends Component
         $this->reset(['editingId']);
     }
 
-    /**
-     * Provision, update or remove the driver's linked login account to match the
-     * "needs login" toggle. The account carries the `driver` role and logs in by
-     * the driver's employee number.
-     */
+    /** Provisions, updates, or removes the driver's linked login to match the toggle. */
     private function syncLoginAccount(Driver $driver, string $password): void
     {
         if ($this->needsLogin) {

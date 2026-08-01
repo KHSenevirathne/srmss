@@ -6,11 +6,7 @@ use App\Services\ReportService;
 use Illuminate\Support\Carbon;
 use Livewire\Component;
 
-/**
- * Reports & analytics screen (Phase 5). Shows the four ReportService reports for
- * a chosen date range (tables + Chart.js charts) and links to the PDF export,
- * which renders the same data. Guarded by `view-reports`.
- */
+/** Shows ReportService's aggregations for a chosen date range, with a link to the PDF export. */
 class Reports extends Component
 {
     public string $from = '';

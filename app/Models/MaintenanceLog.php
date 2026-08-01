@@ -22,10 +22,7 @@ class MaintenanceLog extends Model
         return $this->belongsTo(Vehicle::class);
     }
 
-    /**
-     * "Service due" when a next-service date is set and has reached/passed today.
-     * See docs/DATA_MODEL.md : surfaced on the maintenance log and dashboard alerts.
-     */
+    /** True when a next-service date is set and has reached or passed today. */
     public function serviceDue(): bool
     {
         return $this->next_due_at !== null && $this->next_due_at->lte(now()->startOfDay());

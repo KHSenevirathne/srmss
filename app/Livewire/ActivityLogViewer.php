@@ -7,12 +7,7 @@ use App\Models\User;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-/**
- * Audit-trail viewer (HR-02) : a read-only window onto the activity_logs table,
- * filterable by user and event. Admin only (guarded by `manage-users` on the
- * route). There is deliberately no create/edit/delete here: the log is an
- * append-only record written automatically elsewhere.
- */
+/** Read-only, filterable view of the activity log. Admin only; no create/edit/delete. */
 class ActivityLogViewer extends Component
 {
     use WithPagination;

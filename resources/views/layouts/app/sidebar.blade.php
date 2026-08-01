@@ -79,7 +79,6 @@
                         {{ __('Maintenance') }}
                     </flux:sidebar.item>
                 @endcan
-                {{-- Phase 4+ : Schedules, Reports link here, each behind its own @can. --}}
             </flux:sidebar.group>
             @endcanany
 

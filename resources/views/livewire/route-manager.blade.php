@@ -275,9 +275,7 @@
 
     @script
         <script>
-            // Renders the route's stops + connecting line on a map. Uses Leaflet +
-            // OpenStreetMap by default (no key, no cost); if a Google Maps API key is
-            // configured it uses Google Maps instead. Same data either way.
+            // Uses Leaflet/OpenStreetMap by default, or Google Maps if an API key is set.
             Alpine.data('routeMap', (stops, apiKey) => ({
                 stops,
                 apiKey,
@@ -393,8 +391,7 @@
                 },
             }));
 
-            // Shared Leaflet/OpenStreetMap loader : injects the SDK once, fixes the
-            // default marker icon paths, then runs the callback when ready.
+            // Injects the Leaflet SDK once, then runs the callback when ready.
             window.srmssLoadLeaflet = function(cb) {
                 const ready = () => {
                     if (!window.__srmssLeafletIcons) {

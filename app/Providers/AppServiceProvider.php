@@ -34,16 +34,13 @@ class AppServiceProvider extends ServiceProvider
         $this->recordAuthActivity();
     }
 
-    /**
-     * Gates that combine permissions. The trips board is reachable by staff
-     * (view-trips) and by drivers seeing only their own trips (view-own-trips).
-     */
+    /** Lets both staff (view-trips) and drivers (view-own-trips) reach the trips board. */
     protected function configureGates(): void
     {
         Gate::define('access-trips', fn (User $user) => $user->canAny(['view-trips', 'view-own-trips']));
     }
 
-    /** Audit trail (HR-02) for authentication events. */
+    /** Records login/logout events to the activity log. */
     protected function recordAuthActivity(): void
     {
         Event::listen(Login::class, fn (Login $event) => ActivityLog::create([

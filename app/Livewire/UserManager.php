@@ -8,14 +8,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Spatie\Permission\Models\Role;
 
-/**
- * User management (Phase 1) : admin-only screen to create users and assign a
- * role. Follows the VehicleManager CRUD pattern. Guarded by `manage-users`,
- * which only the admin role holds, so the route 403s for everyone else.
- *
- * Each user is given exactly one role (admin | supervisor | operator), matching
- * how DemoDataSeeder provisions the demo logins.
- */
+/** Admin-only screen to create users and assign a role (admin | supervisor | operator). */
 class UserManager extends Component
 {
     use WithPagination;
@@ -39,11 +32,7 @@ class UserManager extends Component
         $this->resetPage();
     }
 
-    /**
-     * Assignable role names from the RBAC seeder (single source of truth).
-     * The `driver` role is excluded : driver logins are provisioned from the
-     * Drivers screen, never created or reassigned here.
-     */
+    /** Excludes `driver` — driver logins are provisioned from the Drivers screen instead. */
     public function rolesList(): array
     {
         return Role::where('name', '!=', 'driver')->orderBy('name')->pluck('name')->all();

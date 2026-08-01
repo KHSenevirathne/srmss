@@ -45,10 +45,7 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
     }
 
-    /**
-     * Configure Fortify views. Registration, two-factor and passkeys are removed:
-     * all accounts are created manually by staff (see UserManager / DriverManager).
-     */
+    /** Registration, two-factor, and passkeys are removed — accounts are created by staff only. */
     private function configureViews(): void
     {
         Fortify::loginView(fn () => view('pages::auth.login'));
@@ -58,11 +55,7 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::requestPasswordResetLinkView(fn () => view('pages::auth.forgot-password'));
     }
 
-    /**
-     * Resolve the login identifier to a user. Staff log in with their email;
-     * drivers log in with their employee number, which we resolve through the
-     * driver -> user link. A single "login" field on the form carries either.
-     */
+    /** Staff log in with email; drivers with their employee number. Same "login" field carries either. */
     private function configureAuthentication(): void
     {
         Fortify::authenticateUsing(function (Request $request) {
@@ -79,10 +72,8 @@ class FortifyServiceProvider extends ServiceProvider
             return null;
         });
 
-        // Password confirmation can't use the default credential lookup: our
-        // username field is "login" (no such column), so Fortify's default
-        // `validate(['login' => $user->login, …])` throws. Confirm against the
-        // already-authenticated user's password hash directly instead.
+        // Fortify's default check looks up a "login" column that doesn't exist,
+        // so confirm against the authenticated user's password hash directly.
         Fortify::confirmPasswordsUsing(
             fn ($user, ?string $password) => Hash::check((string) $password, $user->password)
         );

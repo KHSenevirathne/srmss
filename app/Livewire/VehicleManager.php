@@ -7,20 +7,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Validate;
 
-/**
- * REFERENCE PATTERN : full CRUD for the Vehicles module.
- *
- * This is the template to replicate for the other master-data modules
- * (Drivers, Routes, Fuel logs, Maintenance logs, etc). It demonstrates:
- *   - list + live search + pagination
- *   - a modal-driven create/edit form
- *   - validation via #[Validate] attributes
- *   - delete with confirmation
- *
- * Works on Livewire 3 and 4 (class-based component).
- * Compatible with the spatie/laravel-permission gate checks added in
- * Phase 1 : wrap destructive buttons in @can('manage-fleet') in Blade.
- */
+/** Full CRUD for vehicles: search, pagination, modal form, validation. */
 class VehicleManager extends Component
 {
     use WithPagination;

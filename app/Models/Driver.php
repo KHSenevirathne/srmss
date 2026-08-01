@@ -53,7 +53,7 @@ class Driver extends Model
         return $this->hasMany(Schedule::class);
     }
 
-    // Helper used by the dashboard alerts panel (see docs/MODULES.md).
+    /** Used by the dashboard alerts panel. */
     public function licenseExpiringSoon(int $days = 30): bool
     {
         return $this->license_expiry?->isBetween(now(), now()->addDays($days)) ?? false;

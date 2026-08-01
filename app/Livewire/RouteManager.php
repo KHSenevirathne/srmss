@@ -8,17 +8,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Validate;
 
-/**
- * Routes module (Phase 3) : CRUD for bus routes plus ordered-stop management.
- *
- * Follows the VehicleManager/DriverManager pattern (list + search + modal form)
- * and adds a second panel for managing a route's stops: add, remove, and reorder
- * (move up/down). Guarded by the `manage-routes` permission.
- *
- * Deferred (separate follow-ups): the Google Map render (needs a Maps API key)
- * and vehicle/driver assignment, which belongs with Phase 4 scheduling so it can
- * reuse the conflict/availability checks.
- */
+/** Routes CRUD plus ordered-stop management (add / remove / reorder). */
 class RouteManager extends Component
 {
     use WithPagination;

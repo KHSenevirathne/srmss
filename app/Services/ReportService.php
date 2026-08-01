@@ -9,12 +9,8 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 /**
- * Reporting & analytics aggregations (Phase 5).
- *
- * Each method takes an inclusive date range and returns plain arrays/collections
- * that both the Reports screen and the PDF export render. Kept framework-light
- * and database-agnostic (period grouping is done in PHP, not with vendor SQL
- * date functions) so it behaves the same on MySQL and the sqlite test database.
+ * Date-range aggregations shared by the Reports screen and the PDF export.
+ * Period grouping is done in PHP, not SQL, so results match on MySQL and SQLite.
  */
 class ReportService
 {

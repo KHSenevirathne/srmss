@@ -11,19 +11,8 @@ use Livewire\Component;
 use Livewire\WithPagination;
 
 /**
- * Central trips board with a three-way status model:
- *
- *   - Staff with manage-schedules (admin/supervisor) set any status directly,
- *     including the staff-only 'cancelled'.
- *   - A driver (view-own-trips + request-trip-status) sees only their own trips
- *     and *requests* a non-cancelled status; the request is parked in
- *     pending_status until approved, so a driver cannot self-certify a trip.
- *   - Anyone with approve-trip-status (admin/supervisor/operator) approves or
- *     rejects a pending request.
- *
- * Filters bind to the query string (#[Url]) so the dashboard "See all" link can
- * deep-link straight to, e.g., today's trips. For a driver the board is locked
- * to their own driver_id and the route/vehicle/driver filters are hidden.
+ * Central trips board. Staff can set any status directly; a driver can only
+ * request one, which stays pending until approved — so a driver can't self-certify a trip.
  */
 class TripManager extends Component
 {

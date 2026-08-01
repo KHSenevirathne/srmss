@@ -5,14 +5,7 @@ namespace App\Concerns;
 use App\Models\ActivityLog;
 use Illuminate\Database\Eloquent\Model;
 
-/**
- * Drop-in audit logging (HR-02). Any model that uses this trait automatically
- * writes an ActivityLog row whenever it is created, updated, or deleted :
- * capturing the acting user (if any), the action, and a readable label.
- *
- * Eloquent model events are the hook, so logging happens no matter which screen
- * triggered the change, with no per-component wiring.
- */
+/** Writes an ActivityLog row whenever a model using this trait is created, updated, or deleted. */
 trait LogsActivity
 {
     public static function bootLogsActivity(): void

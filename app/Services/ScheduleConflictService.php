@@ -8,15 +8,8 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 /**
- * Schedule conflict detection (Phase 4) : the keystone domain rule.
- *
- * Two schedules clash when they share the **same vehicle or the same driver**
- * and their validity **date ranges overlap** AND their **daily time windows
- * overlap**. Cancelled schedules never clash, and a schedule never clashes with
- * itself (pass its id as $ignoreId when editing).
- *
- * The pure overlap helpers (rangesOverlap / timeRangesOverlap) are unit-tested
- * directly; conflicts() / hasConflict() layer the DB query on top.
+ * Two schedules clash when they share the same vehicle or driver and both their
+ * date ranges and daily time windows overlap. Cancelled schedules never clash.
  */
 class ScheduleConflictService
 {
@@ -60,10 +53,7 @@ class ScheduleConflictService
         );
     }
 
-    /**
-     * Two date ranges overlap. A null start means open at the beginning and a
-     * null end means open-ended (no expiry).
-     */
+    /** A null start/end means open-ended, not a fixed boundary. */
     public function rangesOverlap(?CarbonInterface $aFrom, ?CarbonInterface $aTo, ?CarbonInterface $bFrom, ?CarbonInterface $bTo): bool
     {
         $aStartsBeforeBEnds = $bTo === null || $aFrom === null || $aFrom->lte($bTo);
@@ -72,10 +62,7 @@ class ScheduleConflictService
         return $aStartsBeforeBEnds && $bStartsBeforeAEnds;
     }
 
-    /**
-     * Two same-day time windows overlap. Back-to-back windows (one ends exactly
-     * when the next starts) do not count as overlapping.
-     */
+    /** Back-to-back windows (one ends exactly when the next starts) don't count as overlapping. */
     public function timeRangesOverlap(string $aDep, string $aArr, string $bDep, string $bArr): bool
     {
         return $this->minutes($aDep) < $this->minutes($bArr)

@@ -10,13 +10,7 @@ use App\Models\Vehicle;
 use Illuminate\Support\Carbon;
 use Livewire\Component;
 
-/**
- * Depot dashboard (Phase 5) : the operational overview shown after login.
- *
- * Summary cards, a live trip-status board (refreshed by Livewire polling, no
- * full page reload), today's schedule overview, and an alerts panel (licences
- * expiring soon, vehicles with service due). All figures come from real data.
- */
+/** Operational overview shown after login: summary cards, trip status, today's schedule, alerts. */
 class Dashboard extends Component
 {
     /** Drivers have no depot dashboard; send them to their own trips. */
@@ -76,9 +70,7 @@ class Dashboard extends Component
             ->groupBy('status')
             ->pluck('total', 'status');
 
-        // Vehicle usage : total trips per vehicle (all-time), including vehicles
-        // with none so "least used" can surface an idle bus. Ordered most → least
-        // with registration_number as a stable tie-break.
+        // All-time trips per vehicle, including zero, so an idle bus can surface as "least used".
         $vehicleUsage = Vehicle::query()
             ->leftJoin('schedules', 'schedules.vehicle_id', '=', 'vehicles.id')
             ->leftJoin('trips', 'trips.schedule_id', '=', 'schedules.id')
@@ -92,9 +84,7 @@ class Dashboard extends Component
                 'trips' => (int) $row->trips,
             ]);
 
-        // Network map : every route that has at least one geo-located stop, with
-        // its ordered stops so the dashboard can plot any route on demand. Routes
-        // without coordinates are dropped (nothing to draw).
+        // Routes with at least one geo-located stop, for the network map.
         $mapRoutes = BusRoute::query()
             ->with(['stops' => fn ($q) => $q->whereNotNull('latitude')->whereNotNull('longitude')])
             ->orderBy('code')
@@ -115,8 +105,7 @@ class Dashboard extends Component
             ->filter(fn ($r) => $r['stops']->isNotEmpty())
             ->values();
 
-        // Mileage extremes : highest/lowest odometer across the fleet, registration
-        // as a stable tie-break (mirrors the usage shape: ordered collection, first/last).
+        // Highest/lowest odometer across the fleet.
         $vehicleMileage = Vehicle::query()
             ->orderByDesc('mileage')
             ->orderBy('registration_number')

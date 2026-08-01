@@ -11,15 +11,7 @@ use App\Services\ScheduleConflictService;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-/**
- * Schedule management (Phase 4) : the hardest module.
- *
- * Create/edit/cancel timetables (route + vehicle + driver + times + frequency +
- * validity range). On save it asks ScheduleConflictService whether the chosen
- * vehicle or driver is already booked on an overlapping date+time window and, if
- * so, blocks the save with a clear message. It can also generate Trip rows for a
- * schedule's dates. Guarded by `manage-schedules` (admin + supervisor).
- */
+/** Schedule CRUD, conflict checking (via ScheduleConflictService), and trip generation. */
 class ScheduleManager extends Component
 {
     use WithPagination;
@@ -127,7 +119,7 @@ class ScheduleManager extends Component
             return;
         }
 
-        // The keystone rule : block an overlapping vehicle/driver booking.
+        // Block an overlapping vehicle/driver booking.
         $clash = $conflicts->conflicts($data, $this->editingId)->first();
         if ($clash) {
             $who = $clash->vehicle_id == $data['vehicle_id'] ? 'vehicle' : 'driver';
@@ -180,11 +172,7 @@ class ScheduleManager extends Component
             ->update(['status' => $status]);
     }
 
-    /**
-     * Generate Trip rows across the schedule's validity window, stepping by its
-     * frequency. Idempotent (skips dates that already have a trip) and capped so
-     * an open-ended daily schedule can't run away.
-     */
+    /** Idempotent: skips dates that already have a trip; capped at 366 iterations. */
     public function generateTrips(int $id): void
     {
         $schedule = Schedule::findOrFail($id);

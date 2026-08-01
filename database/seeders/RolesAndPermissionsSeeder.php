@@ -8,20 +8,8 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
 /**
- * Single source of truth for the SRMSS authorisation model (RBAC).
- *
- * Four roles map to the case-study actors:
- *   - admin       full control, including user management
- *   - supervisor  day-to-day operations + viewing, but cannot manage users
- *   - operator    can log fuel/maintenance, view, and approve driver requests
- *   - driver      a login-enabled driver : sees only their own trips and can
- *                 request status changes (which a staff member must approve)
- *
- * Screens and actions are guarded against these *permissions* (not roles
- * directly) via @can('...') in Blade and the `can:` middleware on routes, so
- * the role -> permission map can change here without editing any screen.
- *
- * Idempotent: safe to run repeatedly (findOrCreate + syncPermissions).
+ * Single source of truth for the RBAC model: four roles (admin, supervisor,
+ * operator, driver), each mapped to a fixed set of permissions below.
  */
 class RolesAndPermissionsSeeder extends Seeder
 {

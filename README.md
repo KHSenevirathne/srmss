@@ -74,8 +74,3 @@ All three accounts use the password `password`:
 ```bash
 php artisan test
 ```
-
-## Documentation
-
-See the [`docs/`](docs/) folder for the data model, module specifications, and the
-architecture / coding conventions.

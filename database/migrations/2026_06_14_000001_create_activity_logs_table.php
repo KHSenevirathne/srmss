@@ -4,11 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-/**
- * Audit trail (HR-02). Append-only record of critical user activities : who did
- * what, to which record, and when. Written automatically by the LogsActivity
- * trait on the audited models, plus login/logout events.
- */
+/** Append-only audit trail, written by the LogsActivity trait plus login/logout events. */
 return new class extends Migration
 {
     public function up(): void
